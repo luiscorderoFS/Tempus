@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Tempus</string>
+    <string name="send_date">+</string>
 </resources>

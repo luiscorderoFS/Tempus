@@ -4,10 +4,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.CalendarView
 import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
+
+    private var layoutManager: RecyclerView.LayoutManager? = null
+    private var adapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -15,6 +20,7 @@ class MainActivity : AppCompatActivity() {
 
         val textView = findViewById<TextView>(R.id.textView)
         val calendarView = findViewById<CalendarView>(R.id.calendarView)
+
 
         //region Text view for date change
 
@@ -31,5 +37,14 @@ class MainActivity : AppCompatActivity() {
         }
         //endregion
 
+        //region RecycleView
+        val recyclerEvent = findViewById<RecyclerView>(R.id.recyclerEvent)
+        layoutManager = LinearLayoutManager(this)
+
+        recyclerEvent.layoutManager = layoutManager
+
+        adapter = RecyclerAdapter()
+        recyclerEvent.adapter = adapter
+        //endregion
     }
 }

@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
 
         val textView = findViewById<TextView>(R.id.textView)
         val calendarView = findViewById<CalendarView>(R.id.calendarView)
-
+        var day = 0
 
         //region Text view for date change
 
@@ -33,7 +33,18 @@ class MainActivity : AppCompatActivity() {
         calendarView.setOnDateChangeListener{view,year,month,dayOfMonth ->
             val newMonth = month + 1
             val calText = "$newMonth/$dayOfMonth/$year"
+            day = dayOfMonth
+
             textView.text = calText
+            val recyclerEvent = findViewById<RecyclerView>(R.id.recyclerEvent)
+            layoutManager = LinearLayoutManager(this)
+
+            recyclerEvent.layoutManager = layoutManager
+            //allows the listener to be able to dynamically change the recycle view
+            adapter = RecyclerAdapter()
+            (adapter as RecyclerAdapter).changeDate(day)
+            recyclerEvent.adapter = adapter
+
         }
         //endregion
 
@@ -44,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         recyclerEvent.layoutManager = layoutManager
 
         adapter = RecyclerAdapter()
+        (adapter as RecyclerAdapter).changeDate(26)
         recyclerEvent.adapter = adapter
         //endregion
     }

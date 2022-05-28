@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Tempus</string>
+    <string name="title">Title</string>
+    <string name="location">Location</string>
+    <string name="alert">Alert</string>
+    <string name="arrive_by">Arrive By</string>
+    <string name="all_day">All Day</string>
+    <string name="start_time">Start Time</string>
+    <string name="end_time">End Time</string>
+    <string name="date">Date</string>
+    <string-array name="alert_options">
+        <item>At time of event</item>
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+    </string-array>
 </resources>

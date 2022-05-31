@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.CalendarView
 import android.widget.TextView
+import androidx.core.view.get
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
@@ -20,7 +21,9 @@ class MainActivity : AppCompatActivity() {
 
         val textView = findViewById<TextView>(R.id.textView)
         val calendarView = findViewById<CalendarView>(R.id.calendarView)
-        var day = 0
+        val calPlaceHolder = Calendar.getInstance()
+        var day = calPlaceHolder.get(Calendar.DAY_OF_MONTH)
+
 
         //region Text view for date change
 
@@ -55,8 +58,11 @@ class MainActivity : AppCompatActivity() {
         recyclerEvent.layoutManager = layoutManager
 
         adapter = RecyclerAdapter()
-        (adapter as RecyclerAdapter).changeDate(26)
+        (adapter as RecyclerAdapter).changeDate(day)
         recyclerEvent.adapter = adapter
+        recyclerEvent.addItemDecoration(
+            RecyclerAdapter.MarginItemDecoration(resources.getDimensionPixelSize(R.dimen.margin))
+        )
         //endregion
     }
 }

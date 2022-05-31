@@ -8,12 +8,12 @@ class Event(title:String, start:String, leave:String) {
 }
 
 class Month(){
-    var mDays:Array<ArrayList<Event>> = Array()
+    //var mDays = arrayOf(31,arrayListOf<Event>())//Array(arrayListOf<Event>())
+    var mDays = Array(31,{arrayListOf<Event>()})
 
-    init{
-
-    }
-    fun addDayEvent(day:Int, events:ArrayList<Event>){
-        mDays[day-1].addAll(events)
+    fun addEvent(date:Int, events:ArrayList<Event>){
+        mDays[date].addAll(events)
     }
 }
+
+

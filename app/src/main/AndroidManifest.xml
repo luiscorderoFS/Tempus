@@ -11,7 +11,7 @@
         android:theme="@style/Theme.Tempus">
         <activity
             android:name=".CreateEventActivity"
-            android:exported="false"/>
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

@@ -1,95 +1,101 @@
 package com.firstapp.tempus
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import android.widget.DatePicker
-import android.widget.TimePicker
+import android.widget.EditText
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
-class CreateEventActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
-
-    var day = 0
-    var month = 0
-    var year = 0
-    var hour = 0
-    var minute = 0
-
-    var savedDay = 0
-    var savedMonth = 0
-    var savedYear = 0
-    var savedHour = 0
-    var savedMinute = 0
+class CreateEventActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_event)
 
-        /*val languages = resources.getStringArray(R.array.alert_options)
-        val arrayAdapter = ArrayAdapter(this, R.layout.list_item, languages)
-        val autoCompleteTV = findViewById<AutoCompleteTextView>(R.id.alert)
-        autoCompleteTV.setAdapter(arrayAdapter)*/
+        // set pointers to date and time buttons/textviews
+        val createButton: Button = findViewById(R.id.create)
+        val dateButton: Button = findViewById(R.id.date)
+        val timeButton: Button = findViewById(R.id.start_time)
+        val dateText: TextView = findViewById(R.id.date_text)
+        val timeText: TextView = findViewById(R.id.time_text)
 
-        /*val listView = findViewById<ListView>(R.id.time_list)
-        val arrayList = arrayOf("Start Time", "End Time")
-        val arrayAdapter1: ArrayAdapter<String> = ArrayAdapter(this, android.R.layout.simple_list_item_1, arrayList)
-        listView.adapter = arrayAdapter1*/
+        var date = MaterialDatePicker.todayInUtcMilliseconds()
+        var dateDummy: Long
+        var hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        var minute = Calendar.getInstance().get(Calendar.MINUTE)
+        // set date and time views to current time
+        setText()
 
-        pickDate()
+        dateButton.setOnClickListener{
 
-        findViewById<Button>(R.id.create).setOnClickListener() {
-            //val tempEvent = Event(findViewById<TextInputEditText>(R.id.location_text).text(), )
+            // create and show datepicker
+            val datePicker =
+                MaterialDatePicker.Builder.datePicker()
+                    .setTitleText("Date")
+                    .setSelection(date)
+                    .build()
+            datePicker.show(supportFragmentManager, "tag");
+
+            // when user clicks "OK"
+            datePicker.addOnPositiveButtonClickListener {
+                // set text to selected date
+                val simpleDateFormat = SimpleDateFormat("MM/dd/yyyy")
+                date = datePicker.selection!!
+                dateDummy = date + 86400000
+                val format = simpleDateFormat.format(dateDummy)
+                dateText.text = String.format(format)
+            }
         }
-    }
 
-    private fun getCalendar() {
-        val cal = Calendar.getInstance()
-        day = cal.get(Calendar.DAY_OF_MONTH)
-        month = cal.get(Calendar.MONTH)
-        year = cal.get(Calendar.YEAR)
-        hour = cal.get(Calendar.HOUR)
-        minute = cal.get(Calendar.MINUTE)
-    }
-
-    private fun pickDate() {
-
-        findViewById<Button>(R.id.start_time).setOnClickListener {
-            getCalendar()
-            //TimePickerDialog(this, this, hour, minute, true).show()
-            val picker =
+        timeButton.setOnClickListener{
+            // create and show timepicker
+            val timePicker =
                 MaterialTimePicker.Builder()
                     .setTimeFormat(TimeFormat.CLOCK_12H)
                     .setHour(hour)
                     .setMinute(minute)
                     .setTitleText("Start Time")
                     .build()
-            MaterialTimePicker.Builder().setInputMode(MaterialTimePicker.INPUT_MODE_KEYBOARD)
-            picker.show(supportFragmentManager, "tag")
+            timePicker.show(supportFragmentManager, "tag")
+
+            // when user clicks "OK"
+            timePicker.addOnPositiveButtonClickListener {
+                // set text to selected date
+                val simpleDateFormat = SimpleDateFormat("h:mm a")
+                hour = timePicker.hour
+                minute = timePicker.minute
+                val calendar = Calendar.getInstance()
+                calendar.set(0, 0, 0, hour, minute)
+                val format = simpleDateFormat.format(calendar.timeInMillis)
+                timeText.text = format
+            }
         }
 
-        findViewById<Button>(R.id.date).setOnClickListener {
-            getCalendar()
-            DatePickerDialog(this, this, year, month, day).show()
+        createButton.setOnClickListener{
+
         }
     }
 
-    override fun onDateSet(view: DatePicker?, day: Int, month: Int, year: Int) {
-        savedDay = day
-        savedMonth = month
-        savedYear = year
-    }
+    private fun setText() {
+        // set pointers to date and time textviews
+        val dateText: TextView = findViewById(R.id.date_text)
+        val timeText: TextView = findViewById(R.id.time_text)
 
-    override fun onTimeSet(view: TimePicker?, hour: Int, minute: Int) {
-        savedHour = hour
-        savedMinute = minute
-    }
+        // set text to show current date
+        var simpleDateFormat = SimpleDateFormat("MM/dd/yyyy")
+        var format = simpleDateFormat.format(Date())
+        dateText.text = format
 
-    class Event(val title: String, val location: String, val date: String, val startTime: String, val endTime: String, val arriveByTime: String, val alertOption: String){
-
+        // set text to show current time
+        simpleDateFormat = SimpleDateFormat("HH:mm a")
+        format = simpleDateFormat.format(Date())
+        timeText.text = format
     }
 }

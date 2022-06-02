@@ -38,6 +38,8 @@ class MainActivity : AppCompatActivity() {
             val calText = "$newMonth/$dayOfMonth/$year"
             day = dayOfMonth
 
+            // if check to see what month we're in
+
             textView.text = calText
             val recyclerEvent = findViewById<RecyclerView>(R.id.recyclerEvent)
             layoutManager = LinearLayoutManager(this)
@@ -49,6 +51,8 @@ class MainActivity : AppCompatActivity() {
             recyclerEvent.adapter = adapter
 
         }
+
+
         //endregion
 
         //region RecycleView

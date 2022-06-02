@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
+
 class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
     private var test:Event = Event("Test","Test","Test")
@@ -22,8 +23,8 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     //this initializes the view to the current month, further we can have a check to see if the month
     //has changed at all
     init{
-        monthTest.addEvent(30,groupOfTest)
-        monthTest.addEvent(0,groupOfTest2)
+        monthTest.addEvents(30,groupOfTest)
+        monthTest.addEvents(0,groupOfTest2)
 
     }
     private var date = Calendar.getInstance().get(Calendar.DATE)
@@ -39,23 +40,7 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val newPos = position + 1
-        /*if(date == 31) {
-            /*holder.eventTitle.text = groupOfTest[position].mTitle
-            holder.eventNumber.text = "${newPos}.)"
-            holder.eventStart.text = groupOfTest[position].mStart
-            holder.eventLeaveBy.text = groupOfTest[position].mLeave*/
-            holder.eventTitle.text = monthTest.mDays[30][position].mTitle
-            holder.eventNumber.text = "${newPos}.)"
-            holder.eventStart.text = monthTest.mDays[30][position].mStart
-            holder.eventLeaveBy.text = monthTest.mDays[30][position].mLeave
 
-        }
-        if(date == 1){
-            holder.eventTitle.text = title1[position]
-
-            holder.eventStart.text = start1[position]
-            holder.eventLeaveBy.text = leaveBy1[position]
-        }*/
         holder.eventTitle.text = monthTest.mDays[date-1][position].mTitle
         holder.eventNumber.text = "${newPos}.)"
         holder.eventStart.text = monthTest.mDays[date-1][position].mStart
@@ -67,6 +52,7 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
         return monthTest.mDays[date-1].size
     }
 
+    //this function is used by the listener in MainActivity.kt to know what date we're in
     fun changeDate(date: Int){
         this.date = date
     }

@@ -16,24 +16,26 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    // Variable which represents the user's account - Gabriel
+    // Create the authentication variable - Gabriel
     private lateinit var auth: FirebaseAuth
 
     private var layoutManager: RecyclerView.LayoutManager? = null
     private var adapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>? = null
 
-    // Upon starting this screen, evaluate if the user is signed in or not. If not, got to the login/register screen - Gabriel
+    // Upon starting this screen, evaluate if the user is signed in or not. - Gabriel
     override fun onStart(){
         super.onStart()
-        auth.signOut()
+        // If not, got to the login/register screen - Gabriel
         if(auth.currentUser == null){
             startActivity(Intent(this, LoginOrRegisterActivity::class.java))
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        //Initialize the authentication variable - Gabriel
+        // Initialize the authentication variable - Gabriel
         auth = Firebase.auth
+        // Temporary line of code to correct any issues with authenticating after logging in once (just sign the user out before anything occurs) - Gabriel
+        auth.signOut()
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

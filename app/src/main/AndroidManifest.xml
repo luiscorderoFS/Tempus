@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Tempus">
         <activity
-            android:name=".DisplayCreateEvent"
+            android:name=".ViewEvent"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

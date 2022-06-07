@@ -1,5 +1,6 @@
 package com.firstapp.tempus
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.CalendarView
@@ -7,15 +8,32 @@ import android.widget.TextView
 import androidx.core.view.get
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
+    // Variable which represents the user's account - Gabriel
+    private lateinit var auth: FirebaseAuth
+
     private var layoutManager: RecyclerView.LayoutManager? = null
     private var adapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>? = null
 
+    // Upon starting this screen, evaluate if the user is signed in or not. If not, got to the login/register screen - Gabriel
+    override fun onStart(){
+        super.onStart()
+        if(auth.currentUser == null){
+            startActivity(Intent(this, LoginActivity::class.java))
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        //Initialize the authentication variable - Gabriel
+        auth = Firebase.auth
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 

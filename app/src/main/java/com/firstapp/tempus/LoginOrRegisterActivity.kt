@@ -16,6 +16,6 @@ class LoginOrRegisterActivity : AppCompatActivity() {
     }
 
     public fun gotoReg(view: View) {
-        //startActivity(Intent(this, RegisterActivity::class.java))
+        startActivity(Intent(this, RegisterActivity::class.java))
     }
 }

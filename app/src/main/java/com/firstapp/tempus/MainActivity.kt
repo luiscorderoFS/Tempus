@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     // Upon starting this screen, evaluate if the user is signed in or not. If not, got to the login/register screen - Gabriel
     override fun onStart(){
         super.onStart()
+        auth.signOut()
         if(auth.currentUser == null){
             startActivity(Intent(this, LoginOrRegisterActivity::class.java))
         }

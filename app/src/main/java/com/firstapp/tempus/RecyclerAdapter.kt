@@ -64,8 +64,8 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
         holder.eventTitle.text = monthTest.mDays[recyclerDate-1][position].mTitle
         holder.eventNumber.text = "${newPos}.)"
-        holder.eventStart.text = "Start: ${monthTest.mDays[recyclerDate-1][position].mStart}"
-        holder.eventLeaveBy.text = monthTest.mDays[recyclerDate-1][position].mLeave
+        holder.eventStart.text = "Start: ${monthTest.mDays[recyclerDate-1][position].mTime}"
+        holder.eventLeaveBy.text = monthTest.mDays[recyclerDate-1][position].mDate
 
 
     }

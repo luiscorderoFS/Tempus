@@ -19,8 +19,8 @@ class ViewEvent : AppCompatActivity(), Serializable {
         val event:Event = bundle!!.get("event") as Event
 
         title.text = event.mTitle
-        start.text = event.mStart
-        end.text = event.mLeave
+        start.text = event.mTime
+        end.text = event.mDate
         desc.text = event.mDesc
 
     }

@@ -3,6 +3,7 @@ package com.firstapp.tempus
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.CalendarView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -35,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         // Initialize the authentication variable - Gabriel
         auth = Firebase.auth
         // Temporary line of code to correct any issues with authenticating after logging in once (just sign the user out before anything occurs) - Gabriel
-        auth.signOut()
+        //auth.signOut()
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -58,6 +59,7 @@ class MainActivity : AppCompatActivity() {
         //endregion
 
         //region RecycleView
+
         //next few lines initialize the recyclerview
         val recyclerEvent = findViewById<RecyclerView>(R.id.recyclerEvent)
         layoutManager = LinearLayoutManager(this)
@@ -66,7 +68,6 @@ class MainActivity : AppCompatActivity() {
         (adapter as RecyclerAdapter).changeDate(day)
         recyclerEvent.adapter = adapter
 
-        //
 
 
         //Formatting of the recyclerView
@@ -110,5 +111,9 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         })
+    }
+
+    fun goToCreate(view: View){
+        startActivity(Intent(this, CreateEventActivity::class.java))
     }
 }

@@ -2,14 +2,14 @@ package com.firstapp.tempus
 
 import java.io.Serializable
 
-class Event(title:String, start:String, leave:String, location:String = "" , desc:String = "") : Serializable, Comparable<Event>{
+class Event(title:String, time:String, date:String, location:String = "", desc:String = "") : Serializable, Comparable<Event>{
     var mTitle = title
-    var mStart = start
-    var mLeave = leave
+    var mTime = time
+    var mDate = date
     var mLocation = location
     var mDesc = desc
 
-    override fun compareTo(other: Event): Int = this.mStart.compareTo(other.mStart)
+    override fun compareTo(other: Event): Int = this.mTime.compareTo(other.mTime)
 
 }
 

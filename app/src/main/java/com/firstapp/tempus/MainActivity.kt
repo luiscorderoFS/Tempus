@@ -1,5 +1,6 @@
 package com.firstapp.tempus
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -16,6 +17,7 @@ class MainActivity : AppCompatActivity() {
 
     private var layoutManager: RecyclerView.LayoutManager? = null
     private var adapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +72,6 @@ class MainActivity : AppCompatActivity() {
             (adapter as RecyclerAdapter).changeDate(day)
             recyclerEvent.adapter = adapter
 
-            calendarView.dateTextAppearance
 
         }
 

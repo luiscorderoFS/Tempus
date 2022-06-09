@@ -26,9 +26,9 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     }
 
     //endregion
-    private var test:Event = Event("Test","Test","Test")
-    private var test2:Event = Event("Test2","Test2","Test2")
-    private var test3:Event = Event("Test3","Test3","Test3", "This is just a test of hidden memberVaribles ")
+    private var test:Event = Event("Test","10:00","Test")
+    private var test2:Event = Event("Test2","20:00","Test2")
+    private var test3:Event = Event("Test3","14:00","Test3", "This is just a test of hidden memberVaribles ")
     private var groupOfTest = arrayListOf(test,test2,test3)
     private var test4:Event = Event("Test4","Test4","Test4")
     private var test5:Event = Event("Test5","Test5","Test5")
@@ -41,6 +41,7 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     init{
         monthTest.addEvents(6,groupOfTest)
         monthTest.addEvents(8,groupOfTest2)
+        monthTest.addEvent(6,Event("Test7","01:00","Test7"))
 
     }
     var recyclerDate = Calendar.getInstance().get(Calendar.DATE)
@@ -59,7 +60,7 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
         holder.eventTitle.text = monthTest.mDays[recyclerDate-1][position].mTitle
         holder.eventNumber.text = "${newPos}.)"
-        holder.eventStart.text = monthTest.mDays[recyclerDate-1][position].mStart
+        holder.eventStart.text = "Start: ${monthTest.mDays[recyclerDate-1][position].mStart}"
         holder.eventLeaveBy.text = monthTest.mDays[recyclerDate-1][position].mLeave
 
 

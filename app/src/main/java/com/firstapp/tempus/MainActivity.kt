@@ -1,13 +1,10 @@
 package com.firstapp.tempus
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.CalendarView
 import android.widget.TextView
-import android.widget.Toast
-import androidx.core.view.get
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
@@ -28,6 +25,7 @@ class MainActivity : AppCompatActivity() {
         val calPlaceHolder = Calendar.getInstance()
         var day = calPlaceHolder.get(Calendar.DAY_OF_MONTH)
 
+        monthTest = juneTest
 
         //region Text view for date change
 
@@ -66,6 +64,12 @@ class MainActivity : AppCompatActivity() {
             day = dayOfMonth
 
             // if check to see what month we're in
+            if(newMonth == 6){
+                monthTest = juneTest
+            }
+            else if(newMonth == 7){
+                monthTest = julyTest
+            }
 
             textView.text = calText
             //allows the listener to be able to dynamically change the recycle view

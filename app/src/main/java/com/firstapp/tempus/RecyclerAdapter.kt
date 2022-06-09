@@ -4,13 +4,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
-import javax.xml.transform.ErrorListener
 
 var monthTest:Month = Month()
-
+var julyTest:Month = Month()
+var juneTest:Month = Month()
 class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
     //region OnClickListener stuff
@@ -26,22 +25,27 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     }
 
     //endregion
-    private var test:Event = Event("Test","10:00","Test")
-    private var test2:Event = Event("Test2","20:00","Test2")
-    private var test3:Event = Event("Test3","14:00","Test3", "This is just a test of hidden memberVaribles ")
+    private var test:Event = Event ("june","10:00","Test")
+    private var test2:Event = Event("june2","20:00","Test2")
+    private var test3:Event = Event("june3","14:00","Test3", "This is just a test of hidden memberVaribles ")
     private var groupOfTest = arrayListOf(test,test2,test3)
-    private var test4:Event = Event("Test4","Test4","Test4")
-    private var test5:Event = Event("Test5","Test5","Test5")
-    private var test6:Event = Event("Test6","Test6","Test6")
+    private var test4:Event = Event("june4","Test4","Test4")
+    private var test5:Event = Event("june5","Test5","Test5")
+    private var test6:Event = Event("june6","Test6","Test6")
     private var groupOfTest2 = arrayListOf(test4,test5,test6)
+    private var test7:Event = Event("july1","Test4","july")
+    private var test8:Event = Event("july2","Test5","july")
+    private var test9:Event = Event("july3","Test6","july")
+    private var groupOfTest3 = arrayListOf(test7,test8,test9)
 
 
     //this initializes the view to the current month, further we can have a check to see if the month
     //has changed at all
     init{
-        monthTest.addEvents(6,groupOfTest)
-        monthTest.addEvents(8,groupOfTest2)
-        monthTest.addEvent(6,Event("Test7","01:00","Test7"))
+        juneTest.addEvents(6,groupOfTest)
+        juneTest.addEvents(8,groupOfTest2)
+        juneTest.addEvent(6,Event("june7","01:00","Test7"))
+        julyTest.addEvents(0,groupOfTest3)
 
     }
     var recyclerDate = Calendar.getInstance().get(Calendar.DATE)

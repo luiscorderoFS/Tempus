@@ -27,7 +27,7 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     //endregion
     private var test:Event = Event ("june","10:00","Test")
     private var test2:Event = Event("june2","20:00","Test2")
-    private var test3:Event = Event("june3","14:00","Test3", "This is just a test of hidden memberVaribles ")
+    private var test3:Event = Event("june3","14:00","Test3","", "This is just a test of hidden memberVaribles ")
     private var groupOfTest = arrayListOf(test,test2,test3)
     private var test4:Event = Event("june4","Test4","Test4")
     private var test5:Event = Event("june5","Test5","Test5")

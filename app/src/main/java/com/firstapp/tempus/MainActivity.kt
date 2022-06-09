@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
     private var layoutManager: RecyclerView.LayoutManager? = null
     private var adapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>? = null
 
-    // Upon starting this screen, evaluate if the user is signed in or not. - Gabriel
+    // Upon starting this screen, evaluate if the user is signed in or not - Gabriel
     override fun onStart(){
         super.onStart()
         // If not, got to the login/register screen - Gabriel
@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         // Initialize the authentication variable - Gabriel
         auth = Firebase.auth
         // Temporary line of code to correct any issues with authenticating after logging in once (just sign the user out before anything occurs) - Gabriel
-        auth.signOut()
+        //auth.signOut()
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

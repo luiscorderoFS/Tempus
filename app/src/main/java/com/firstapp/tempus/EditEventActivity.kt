@@ -19,29 +19,53 @@ import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CreateEventActivity : AppCompatActivity() {
+class EditEventActivity : AppCompatActivity() {
 
     // Create the authentication and database variables - Gabriel
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
+    // Variables containing the relevant fields found in the chosen document before editing.
+    // Set as static values for testing. Otherwise, plug in proper values based on Main Activity recycler view - Gabriel
+    var oldEventTitle: String = "Dentist Appointment"
+    var oldEventLocation: String = "Orlando"
+    var oldEventDate: String = "07/10/2022"
+    var oldEventTime: String = "04:33"
+
+    // Initialize the calendar variable, used to store the date and time variables as integers, rather than strings - Gabriel
+    val calendar = Calendar.getInstance()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_create_event)
+        setContentView(R.layout.activity_edit_event)
 
         // Initialize the authentication and database variables - Gabriel
         auth = Firebase.auth
         db = Firebase.firestore
 
+        // Set the calendar values, which are set in the following order: year, month, day (date), hourOfDay, minute - Gabriel
+        calendar.set(oldEventDate.substring(6).toInt(),
+            oldEventDate.substring(0, 2).toInt()-1,
+            oldEventDate.substring(3, 5).toInt(),
+            oldEventTime.substring(0, 2).toInt(),
+            oldEventTime.substring(3).toInt())
+
+        // Set the text of the Title and Location Edit Text boxes to their relevant values, found in the old info variables - Gabriel
+        findViewById<EditText>(R.id.title_text).setText(oldEventTitle)
+        findViewById<EditText>(R.id.location_text).setText(oldEventLocation)
+
         // set pointers to date and time buttons/textviews
-        val createButton: Button = findViewById(R.id.create)
+        val editButton: Button = findViewById(R.id.edit)
         val dateButton: Button = findViewById(R.id.date)
         val timeButton: Button = findViewById(R.id.start_time)
         val dateText: TextView = findViewById(R.id.date_text)
         val timeText: TextView = findViewById(R.id.time_text)
 
-        var date = MaterialDatePicker.todayInUtcMilliseconds()
-        var dateDummy: Long
+        // Rather than initialize the date in the date picker fragment to the current date, set it to the original date, found in the document to be "edited" - Gabriel
+        var date = calendar.timeInMillis
+        // Initialize the dateDummy variable with the value of date, to smooth things over when being used by others - Gabriel
+        var dateDummy = date
         var hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         var minute = Calendar.getInstance().get(Calendar.MINUTE)
         // set date and time views to current time
@@ -92,7 +116,7 @@ class CreateEventActivity : AppCompatActivity() {
             }
         }
 
-        createButton.setOnClickListener{
+        editButton.setOnClickListener{
             // Variables that represent the event title and location edit text fields.
             // Note: These variables must be declared here to ensure they grab the proper string values - Gabriel
             var eventTitle: String = findViewById<EditText>(R.id.title_text).text.toString()
@@ -105,18 +129,24 @@ class CreateEventActivity : AppCompatActivity() {
                 "Event Date" to dateText.text.toString(),
                 "Event Time" to timeText.text.toString()
             )
-                                                                                                         // Coll -> Doc -> Coll ->Doc -> Coll -> Doc
-            // Then, create a document which contains the data of the hash map in the following path logic: Users->UserID->Year->Month->Events->Event Title - Gabriel
+
+            // Delete the old document that is being "edited" using the old info variables for pathing - Gabriel
+            db.collection("Users").document(auth.uid.toString()).collection(oldEventDate.substring(6))
+                  .document(oldEventDate.substring(0, 2)).collection("Events").document(oldEventTitle).delete()
+
+            // Create a new document based on the new user inputs, thus "editing" the old document, using the same pathing logic during the creation process.
+            // Note: While documents can actually be updated, if the user changes the date and time, then the document location has to change too.
+            //       As a result, rather than updating the document in question, it is better to delete the old document and create a new one based on the info - Gabriel
             db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
                 .document(dateText.text.toString().substring(0, 2)).collection("Events").document(eventTitle).set(data)
                 .addOnCompleteListener{ task ->
                     // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
                     if(task.isSuccessful){
-                        Toast.makeText(this, "Database path creation successful!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Database path edit successful!", Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this, MainActivity::class.java))
                     // Otherwise, display a Toast message that the creation failed - Gabriel
                     } else {
-                        Toast.makeText(this, "Unable to create database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Unable to edit database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
                     }
                 }
         }
@@ -129,12 +159,18 @@ class CreateEventActivity : AppCompatActivity() {
 
         // set text to show current date
         var simpleDateFormat = SimpleDateFormat("MM/dd/yyyy")
-        var format = simpleDateFormat.format(Date())
+        // Instead of using the current date, use the date found in the calendar variable's fields.
+        // Note: the calendar value being inputted is then formatted as mm/dd/yyyy.
+        // Then, the displayed text for the date picker fragment is set to this value upon creation - Gabriel
+        var format = simpleDateFormat.format(calendar.timeInMillis)
         dateText.text = format
 
         // set text to show current time
         simpleDateFormat = SimpleDateFormat("HH:mm a")
-        format = simpleDateFormat.format(Date())
+        // Instead of using the current time, use the time found in the calendar variable's fields.
+        // Note: the calendar value being inputted is then formatted as HH:MM (H = hour, M = minute).
+        // Then, the displayed text for the time picker fragment is set to this value upon creation - Gabriel
+        format = simpleDateFormat.format(calendar.timeInMillis)
         timeText.text = format
     }
 }

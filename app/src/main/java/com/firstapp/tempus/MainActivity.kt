@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
     private var layoutManager: RecyclerView.LayoutManager? = null
     private var adapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>? = null
 
-    // Upon starting this screen, evaluate if the user is signed in or not. - Gabriel
+    // Upon starting this screen, evaluate if the user is signed in or not - Gabriel
     override fun onStart(){
         super.onStart()
         // If not, got to the login/register screen - Gabriel

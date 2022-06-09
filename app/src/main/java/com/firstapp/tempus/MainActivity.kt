@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.CalendarView
 import android.widget.TextView
-import androidx.core.view.get
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
@@ -31,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // Initialize the authentication variable - Gabriel
         auth = Firebase.auth
@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         val calPlaceHolder = Calendar.getInstance()
         var day = calPlaceHolder.get(Calendar.DAY_OF_MONTH)
 
+        monthTest = juneTest
 
         //region Text view for date change
 
@@ -53,6 +54,29 @@ class MainActivity : AppCompatActivity() {
         val currentDate = sdf.format(Date())
         textView.text = currentDate
 
+
+        //endregion
+
+        //region RecycleView
+        //next few lines initialize the recyclerview
+        val recyclerEvent = findViewById<RecyclerView>(R.id.recyclerEvent)
+        layoutManager = LinearLayoutManager(this)
+        recyclerEvent.layoutManager = layoutManager
+        adapter = RecyclerAdapter()
+        (adapter as RecyclerAdapter).changeDate(day)
+        recyclerEvent.adapter = adapter
+
+        //
+
+
+        //Formatting of the recyclerView
+        recyclerEvent.addItemDecoration(
+            RecyclerAdapter.MarginItemDecoration(resources.getDimensionPixelSize(R.dimen.margin))
+        )
+        //endregion
+
+
+
         //a listener that checks when the date changes, allows the text box to show the selected day
         calendarView.setOnDateChangeListener{view,year,month,dayOfMonth ->
             val newMonth = month + 1
@@ -60,34 +84,31 @@ class MainActivity : AppCompatActivity() {
             day = dayOfMonth
 
             // if check to see what month we're in
+            if(newMonth == 6){
+                monthTest = juneTest
+            }
+            else if(newMonth == 7){
+                monthTest = julyTest
+            }
 
             textView.text = calText
-            val recyclerEvent = findViewById<RecyclerView>(R.id.recyclerEvent)
-            layoutManager = LinearLayoutManager(this)
-
-            recyclerEvent.layoutManager = layoutManager
             //allows the listener to be able to dynamically change the recycle view
-            adapter = RecyclerAdapter()
             (adapter as RecyclerAdapter).changeDate(day)
             recyclerEvent.adapter = adapter
+
 
         }
 
 
-        //endregion
+        (adapter as RecyclerAdapter).setOnItemClickListener(object: RecyclerAdapter.onItemClickListener{
+            override fun onItemClick(position:Int){
 
-        //region RecycleView
-        val recyclerEvent = findViewById<RecyclerView>(R.id.recyclerEvent)
-        layoutManager = LinearLayoutManager(this)
+                //Toast.makeText(this@MainActivity, "You clicked on item no. ${position+1}", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this@MainActivity,ViewEvent::class.java)
+                intent.putExtra("event", monthTest.mDays[day-1][position])
 
-        recyclerEvent.layoutManager = layoutManager
-
-        adapter = RecyclerAdapter()
-        (adapter as RecyclerAdapter).changeDate(day)
-        recyclerEvent.adapter = adapter
-        recyclerEvent.addItemDecoration(
-            RecyclerAdapter.MarginItemDecoration(resources.getDimensionPixelSize(R.dimen.margin))
-        )
-        //endregion
+                startActivity(intent)
+            }
+        })
     }
 }

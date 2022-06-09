@@ -21,6 +21,8 @@
         <activity
             android:name=".CreateEventActivity"
             android:parentActivityName=".MainActivity" />
+            android:name=".ViewEvent"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

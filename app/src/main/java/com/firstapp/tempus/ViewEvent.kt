@@ -12,7 +12,7 @@ class ViewEvent : AppCompatActivity(), Serializable {
 
         val title = findViewById<TextView>(R.id.view_title)
         val start = findViewById<TextView>(R.id.view_start)
-        val end = findViewById<TextView>(R.id.view_end)
+        val location = findViewById<TextView>(R.id.view_location)
         val desc = findViewById<TextView>(R.id.view_desc)
 
         val bundle : Bundle?= intent.extras
@@ -20,7 +20,7 @@ class ViewEvent : AppCompatActivity(), Serializable {
 
         title.text = event.mTitle
         start.text = event.mTime
-        end.text = event.mDate
+        location.text = event.mLocation
         desc.text = event.mDesc
 
     }

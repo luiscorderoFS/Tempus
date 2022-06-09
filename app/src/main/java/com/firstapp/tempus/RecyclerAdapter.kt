@@ -42,9 +42,10 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     //this initializes the view to the current month, further we can have a check to see if the month
     //has changed at all
     init{
-        juneTest.addEvents(6,groupOfTest)
-        juneTest.addEvents(8,groupOfTest2)
-        juneTest.addEvent(6,Event("june7","01:00","Test7"))
+        //juneTest.addEvents(6,groupOfTest)
+        //juneTest.addEvents(8,groupOfTest2)
+        //juneTest.addEvent(6,Event("june7","01:00","Test7"))
+        juneTest.randomize()
         julyTest.addEvents(0,groupOfTest3)
 
     }
@@ -53,9 +54,6 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.event_layout,parent,false)
-
-        //use this space here to initialize the starting date's size and maybe
-        //mess around with the listeners properties
         return ViewHolder(v,mListener)
     }
 
@@ -64,8 +62,8 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
         holder.eventTitle.text = monthTest.mDays[recyclerDate-1][position].mTitle
         holder.eventNumber.text = "${newPos}.)"
-        holder.eventStart.text = "Start: ${monthTest.mDays[recyclerDate-1][position].mTime}"
-        holder.eventLeaveBy.text = monthTest.mDays[recyclerDate-1][position].mDate
+        holder.eventTime.text = "Start: ${monthTest.mDays[recyclerDate-1][position].mTime}"
+        holder.eventLocation.text = monthTest.mDays[recyclerDate-1][position].mLocation
 
 
     }
@@ -82,19 +80,18 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     inner class ViewHolder(itemView: View,listener: onItemClickListener): RecyclerView.ViewHolder(itemView){
         var eventNumber: TextView
         var eventTitle: TextView
-        var eventStart: TextView
-        var eventLeaveBy: TextView
+        var eventTime: TextView
+        var eventLocation: TextView
 
         init{
             itemView.setOnClickListener{
                 listener.onItemClick(adapterPosition)
             }
 
-
             eventNumber = itemView.findViewById(R.id.event_number)
             eventTitle = itemView.findViewById(R.id.event_title)
-            eventStart = itemView.findViewById(R.id.event_start)
-            eventLeaveBy = itemView.findViewById(R.id.event_leave_by)
+            eventTime = itemView.findViewById(R.id.event_time)
+            eventLocation = itemView.findViewById(R.id.event_location)
         }
     }
 

@@ -28,7 +28,7 @@ class CreateEventActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_event)
-
+        juneTest.addEvent(9, Event("createevent","99","test"))
         // Initialize the authentication and database variables- Gabriel
         auth = Firebase.auth
         db = Firebase.firestore
@@ -104,7 +104,9 @@ class CreateEventActivity : AppCompatActivity() {
                 "Event Date" to dateText.text.toString(),
                 "Event Time" to timeText.text.toString()
             )
-                                                                                                   // Coll -> Doc -> Coll ->Doc -> Coll -> Doc
+
+
+            // Coll -> Doc -> Coll ->Doc -> Coll -> Doc
             // Then, create a document which contains the data of the hash map in the following path: Users->UserID->Year->Month->Events->Event Title - Gabriel
             db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
                 .document(dateText.text.toString().substring(0, 2)).collection("Events").document(eventTitle).set(data)
@@ -112,6 +114,8 @@ class CreateEventActivity : AppCompatActivity() {
                     // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
                     if(task.isSuccessful){
                         Toast.makeText(this, "Database path creation successful!", Toast.LENGTH_SHORT).show()
+
+
                         startActivity(Intent(this, MainActivity::class.java))
                     // Otherwise, display a Toast message that the creation failed - Gabriel
                     } else {

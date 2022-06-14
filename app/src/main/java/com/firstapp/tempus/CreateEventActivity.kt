@@ -100,6 +100,9 @@ class CreateEventActivity : AppCompatActivity() {
             var eventTitle: String = findViewById<EditText>(R.id.title_text).text.toString()
             var eventLocation: String = findViewById<EditText>(R.id.location_text).text.toString()
 
+            val eventTest = Event(eventTitle,timeText.text.toString(),eventLocation,dateText.text.toString())
+            val dateOfEvent:String = dateText.text.toString().substring(3, 5)
+
             // Rather than create the path upon document creation, throw the proper path into a reference variable for the sake of accessing its unique document ID - Gabriel
             var databasePath = db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
                 .document(dateText.text.toString().substring(0, 2)).collection("Events").document()
@@ -141,6 +144,8 @@ class CreateEventActivity : AppCompatActivity() {
                         Toast.makeText(this, "Unable to create database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
                     }
                 }
+
+            localMonth.addEvent(dateOfEvent.toInt()-1,eventTest)
         }
     }
 

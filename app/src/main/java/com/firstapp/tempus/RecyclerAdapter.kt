@@ -7,9 +7,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
-var monthTest:Month = Month()
-var julyTest:Month = Month()
-var juneTest:Month = Month()
 class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
     //region OnClickListener stuff
@@ -25,30 +22,7 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     }
 
     //endregion
-    private var test:Event = Event ("june","10:00","Test")
-    private var test2:Event = Event("june2","20:00","Test2")
-    private var test3:Event = Event("june3","14:00","Test3","", "This is just a test of hidden memberVaribles ")
-    private var groupOfTest = arrayListOf(test,test2,test3)
-    private var test4:Event = Event("june4","Test4","Test4")
-    private var test5:Event = Event("june5","Test5","Test5")
-    private var test6:Event = Event("june6","Test6","Test6")
-    private var groupOfTest2 = arrayListOf(test4,test5,test6)
-    private var test7:Event = Event("july1","Test4","july")
-    private var test8:Event = Event("july2","Test5","july")
-    private var test9:Event = Event("july3","Test6","july")
-    private var groupOfTest3 = arrayListOf(test7,test8,test9)
 
-
-    //this initializes the view to the current month, further we can have a check to see if the month
-    //has changed at all
-    init{
-        //juneTest.addEvents(6,groupOfTest)
-        //juneTest.addEvents(8,groupOfTest2)
-        //juneTest.addEvent(6,Event("june7","01:00","Test7"))
-        juneTest.randomize()
-        julyTest.addEvents(0,groupOfTest3)
-
-    }
     var recyclerDate = Calendar.getInstance().get(Calendar.DATE)
 
 
@@ -60,16 +34,16 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val newPos = position + 1
 
-        holder.eventTitle.text = monthTest.mDays[recyclerDate-1][position].mTitle
+        holder.eventTitle.text = localMonth.mDays[recyclerDate-1][position].mTitle
         holder.eventNumber.text = "${newPos}.)"
-        holder.eventTime.text = "Start: ${monthTest.mDays[recyclerDate-1][position].mTime}"
-        holder.eventLocation.text = monthTest.mDays[recyclerDate-1][position].mLocation
+        holder.eventTime.text = "Start: ${localMonth.mDays[recyclerDate-1][position].mTime}"
+        holder.eventLocation.text = localMonth.mDays[recyclerDate-1][position].mLocation
 
 
     }
 
     override fun getItemCount(): Int {
-        return monthTest.mDays[recyclerDate-1].size
+        return localMonth.mDays[recyclerDate-1].size
     }
 
     //this function is used by the listener in MainActivity.kt to know what date we're in
@@ -95,6 +69,7 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
         }
     }
 
+    //Formatting - Gives each element in the view to have a little space
     class MarginItemDecoration(private val spaceSize: Int) : RecyclerView.ItemDecoration() {
         override fun getItemOffsets(
             outRect: Rect, view: View,

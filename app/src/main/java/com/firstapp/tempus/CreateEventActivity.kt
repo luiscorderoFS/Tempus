@@ -42,7 +42,8 @@ class CreateEventActivity : AppCompatActivity() {
         val timeText: TextView = findViewById(R.id.time_text)
 
         var date = MaterialDatePicker.todayInUtcMilliseconds()
-        var dateDummy: Long
+        // Initialize the dateDummy variable with the value of date, to smooth things over when being used by others - Gabriel
+        var dateDummy = date
         var hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         var minute = Calendar.getInstance().get(Calendar.MINUTE)
         // set date and time views to current time
@@ -99,45 +100,40 @@ class CreateEventActivity : AppCompatActivity() {
             var eventTitle: String = findViewById<EditText>(R.id.title_text).text.toString()
             var eventLocation: String = findViewById<EditText>(R.id.location_text).text.toString()
 
-            // Upon clicking the button, create a hashmap with the inputted data - Gabriel
-            val data = hashMapOf<Any?, Any?>(
-                "Event Title" to eventTitle,
-                "Event Location" to eventLocation,
-                "Event Date" to dateText.text.toString(),
-                "Event Time" to timeText.text.toString()
-            )
+            // Rather than create the path upon document creation, throw the proper path into a reference variable for the sake of accessing its unique document ID - Gabriel
+            var databasePath = db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
+                .document(dateText.text.toString().substring(0, 2)).collection("Events").document()
 
+            // Initialize the while loop count and string ID variables - Gabriel
+            var x = 0
+            var databasePathID: String = ""
 
-            val eventTest = Event(eventTitle,timeText.text.toString(),eventLocation,dateText.text.toString())
+            // Loop through the databasePath document ID - Gabriel
+            while(x < databasePath.id.length){
+                // If the current character at X is a letter of some kind, concatenate its ASCII value to the databasePathID variable - Gabriel
+                if(databasePath.id.toString()[x] in 'A'..'Z' || databasePath.id.toString()[x] in 'a'..'z'){
+                    databasePathID = (databasePathID + databasePath.id.toString()[x].code)
+                }
+                // Otherwise, if the character at X is a number, just concatenate it to the databasePathID variable - Gabriel
+                else{
+                    databasePathID = (databasePathID + databasePath.id.toString()[x])
+                }
+                // Increment the count variable after each operation - Gabriel
+                x += 1
+            }
+            // After converting the document ID to a numeric ID, set the databasePathID variable to the first 9 digits of the same value.
+            // Note: this is for the purpose of fitting this numeric ID within a variable of type integer - Gabriel
+            databasePathID = databasePathID.substring(0,9)
 
-            // Coll -> Doc -> Coll ->Doc -> Coll -> Doc
-            // Then, create a document which contains the data of the hash map in the following path: Users->UserID->Year->Month->Events->Event Title - Gabriel
-           /* db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
-                                                                                                         // Coll -> Doc -> Coll ->Doc -> Coll -> Doc
-            // Then, create a document which contains the data of the hash map in the following path logic: Users->UserID->Year->Month->Events->Event Title - Gabriel
-            db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
-                .document(dateText.text.toString().substring(0, 2)).collection("Events").document(eventTitle).set(data)
+            // Create the event object, which will take the place of the hash map - Gabriel
+            val eventObj = Event(eventTitle, timeText.text.toString(), eventLocation, dateText.text.toString(), databasePathID, auth.uid.toString())
+
+            // Set the data in the relevant database path using the event object - Gabriel
+            databasePath.set(eventObj)
                 .addOnCompleteListener{ task ->
                     // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
                     if(task.isSuccessful){
                         Toast.makeText(this, "Database path creation successful!", Toast.LENGTH_SHORT).show()
-
-
-                        startActivity(Intent(this, MainActivity::class.java))
-                    // Otherwise, display a Toast message that the creation failed - Gabriel
-                    } else {
-                        Toast.makeText(this, "Unable to create database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
-                    }
-                }*/
-
-            db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
-                .document(dateText.text.toString().substring(0, 2)).collection("Events").document().set(eventTest)
-                .addOnCompleteListener{ task ->
-                    // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
-                    if(task.isSuccessful){
-                        Toast.makeText(this, "Database path creation successful!", Toast.LENGTH_SHORT).show()
-
-
                         startActivity(Intent(this, MainActivity::class.java))
                     // Otherwise, display a Toast message that the creation failed - Gabriel
                     } else {
@@ -163,3 +159,32 @@ class CreateEventActivity : AppCompatActivity() {
         timeText.text = format
     }
 }
+
+// Old createButton.setOnClickListener code:
+// Upon clicking the button, create a hashmap with the inputted data - Gabriel
+//            val data = hashMapOf<Any?, Any?>(
+//                "Event Title" to eventTitle,
+//                "Event Location" to eventLocation,
+//                "Event Date" to dateText.text.toString(),
+//                "Event Time" to timeText.text.toString()
+//            )
+
+// Coll -> Doc -> Coll ->Doc -> Coll -> Doc
+// Then, create a document which contains the data of the hash map in the following path: Users->UserID->Year->Month->Events->Event Title - Gabriel
+/* db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
+                                                                                              // Coll -> Doc -> Coll ->Doc -> Coll -> Doc
+ // Then, create a document which contains the data of the hash map in the following path logic: Users->UserID->Year->Month->Events->Event Title - Gabriel
+ db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
+     .document(dateText.text.toString().substring(0, 2)).collection("Events").document(eventTitle).set(data)
+     .addOnCompleteListener{ task ->
+         // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
+         if(task.isSuccessful){
+             Toast.makeText(this, "Database path creation successful!", Toast.LENGTH_SHORT).show()
+
+
+             startActivity(Intent(this, MainActivity::class.java))
+         // Otherwise, display a Toast message that the creation failed - Gabriel
+         } else {
+             Toast.makeText(this, "Unable to create database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
+         }
+     }*/

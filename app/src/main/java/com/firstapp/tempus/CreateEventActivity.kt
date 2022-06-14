@@ -126,7 +126,7 @@ class CreateEventActivity : AppCompatActivity() {
             databasePathID = databasePathID.substring(0,9)
 
             // Create the event object, which will take the place of the hash map - Gabriel
-            val eventObj = Event(eventTitle, timeText.text.toString(), eventLocation, dateText.text.toString(), databasePathID, auth.uid.toString())
+            val eventObj = Event(eventTitle, timeText.text.toString(), eventLocation, dateText.text.toString(), databasePathID, auth.uid.toString(), databasePath.id.toString())
 
             // Set the data in the relevant database path using the event object - Gabriel
             databasePath.set(eventObj)

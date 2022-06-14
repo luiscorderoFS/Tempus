@@ -27,10 +27,12 @@ class EditEventActivity : AppCompatActivity() {
 
     // Variables containing the relevant fields found in the chosen document before editing.
     // Set as static values for testing. Otherwise, plug in proper values based on Main Activity recycler view - Gabriel
-    var oldEventTitle: String = "Dentist Appointment"
-    var oldEventLocation: String = "Orlando"
-    var oldEventDate: String = "07/10/2022"
-    var oldEventTime: String = "04:33"
+    var oldEventTitle: String = "Ex"
+    var oldEventLocation: String = "Ex"
+    var oldEventDate: String = "06/14/2022"
+    var oldEventTime: String = "14:25"
+    var oldNumID: String = "699012175"
+    var oldDocID: String = "EZyKZ5N1URMggOnoSVRJ"
 
     // Initialize the calendar variable, used to store the date and time variables as integers, rather than strings - Gabriel
     val calendar = Calendar.getInstance()
@@ -122,29 +124,25 @@ class EditEventActivity : AppCompatActivity() {
             var eventTitle: String = findViewById<EditText>(R.id.title_text).text.toString()
             var eventLocation: String = findViewById<EditText>(R.id.location_text).text.toString()
 
-            // Upon clicking the button, create a hashmap with the inputted data - Gabriel
-            val data = hashMapOf<Any?, Any?>(
-                "Event Title" to eventTitle,
-                "Event Location" to eventLocation,
-                "Event Date" to dateText.text.toString(),
-                "Event Time" to timeText.text.toString()
-            )
-
             // Delete the old document that is being "edited" using the old info variables for pathing - Gabriel
             db.collection("Users").document(auth.uid.toString()).collection(oldEventDate.substring(6))
                   .document(oldEventDate.substring(0, 2)).collection("Events").document(oldEventTitle).delete()
 
-            // Create a new document based on the new user inputs, thus "editing" the old document, using the same pathing logic during the creation process.
-            // Note: While documents can actually be updated, if the user changes the date and time, then the document location has to change too.
-            //       As a result, rather than updating the document in question, it is better to delete the old document and create a new one based on the info - Gabriel
-            db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
-                .document(dateText.text.toString().substring(0, 2)).collection("Events").document(eventTitle).set(data)
+            // Rather than create the path upon document creation, throw the proper path into a reference variable for the sake of clarity - Gabriel
+            var databasePath = db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
+                .document(dateText.text.toString().substring(0, 2)).collection("Events").document(oldDocID)
+
+            // Create the event object, which will take the place of the hash map - Gabriel
+            val eventObj = Event(eventTitle, timeText.text.toString(), eventLocation, dateText.text.toString(), oldNumID, auth.uid.toString(), oldDocID)
+
+            // Set the data in the relevant database path using the event object - Gabriel
+            databasePath.set(eventObj)
                 .addOnCompleteListener{ task ->
                     // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
                     if(task.isSuccessful){
                         Toast.makeText(this, "Database path edit successful!", Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this, MainActivity::class.java))
-                    // Otherwise, display a Toast message that the creation failed - Gabriel
+                        // Otherwise, display a Toast message that the creation failed - Gabriel
                     } else {
                         Toast.makeText(this, "Unable to edit database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
                     }
@@ -174,3 +172,30 @@ class EditEventActivity : AppCompatActivity() {
         timeText.text = format
     }
 }
+
+// Old editButton.setOnClickListener code:
+// Upon clicking the button, create a hashmap with the inputted data - Gabriel
+//            val data = hashMapOf<Any?, Any?>(
+//                "Event Title" to eventTitle,
+//                "Event Location" to eventLocation,
+//                "Event Date" to dateText.text.toString(),
+//                "Event Time" to timeText.text.toString()
+//            )
+
+//      (Delete the old document)
+
+// Create a new document based on the new user inputs, thus "editing" the old document, using the same pathing logic during the creation process.
+//            // Note: While documents can actually be updated, if the user changes the date and time, then the document location has to change too.
+//            //       As a result, rather than updating the document in question, it is better to delete the old document and create a new one based on the info - Gabriel
+//            db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
+//                .document(dateText.text.toString().substring(0, 2)).collection("Events").document(eventTitle).set(data)
+//                .addOnCompleteListener{ task ->
+//                    // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
+//                    if(task.isSuccessful){
+//                        Toast.makeText(this, "Database path edit successful!", Toast.LENGTH_SHORT).show()
+//                        startActivity(Intent(this, MainActivity::class.java))
+//                    // Otherwise, display a Toast message that the creation failed - Gabriel
+//                    } else {
+//                        Toast.makeText(this, "Unable to edit database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
+//                    }
+//                }

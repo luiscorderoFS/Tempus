@@ -18,7 +18,6 @@ import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.*
 
-var localMonth:Month = Month()
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,8 +25,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
+
     private var layoutManager: RecyclerView.LayoutManager? = null
-    private var adapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>? = null
+    private lateinit var adapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>
     private lateinit var calText:String
 
     // Upon starting this screen, evaluate if the user is signed in or not - Gabriel
@@ -65,26 +65,9 @@ class MainActivity : AppCompatActivity() {
 
         //endregion
 
-        //region RecycleView
-
-        //next few lines initialize the recyclerview
-        val recyclerEvent = findViewById<RecyclerView>(R.id.recyclerEvent)
-        layoutManager = LinearLayoutManager(this)
-        recyclerEvent.layoutManager = layoutManager
-        adapter = RecyclerAdapter()
-        (adapter as RecyclerAdapter).changeDate(day)
-
-
-
-        //Formatting of the recyclerView
-        recyclerEvent.addItemDecoration(
-            RecyclerAdapter.MarginItemDecoration(resources.getDimensionPixelSize(R.dimen.margin))
-        )
-        //endregion
-
         //region Initializes the month via firebase
 
-        db.collection("Users").document(auth.uid.toString()).collection(currentDate.substring(6))
+        /*db.collection("Users").document(auth.uid.toString()).collection(currentDate.substring(6))
             .document(currentDate.substring(0, 2)).collection("Events")
             .get()
             .addOnSuccessListener { result->
@@ -97,14 +80,36 @@ class MainActivity : AppCompatActivity() {
             .addOnFailureListener{ exception ->
                 Toast.makeText(this@MainActivity, "Failed", Toast.LENGTH_SHORT).show()
 
-            }
+            }*/
 
         //endregion
+
+
+        //region RecycleView
+
+        //next few lines initialize the recyclerview
+        val recyclerEvent = findViewById<RecyclerView>(R.id.recyclerEvent)
+        layoutManager = LinearLayoutManager(this)
+        recyclerEvent.layoutManager = layoutManager
+        adapter = RecyclerAdapter()
+        (adapter as RecyclerAdapter).changeDate(day)
+        recyclerEvent.adapter = adapter
+
+
+
+        //Formatting of the recyclerView
+        recyclerEvent.addItemDecoration(
+            RecyclerAdapter.MarginItemDecoration(resources.getDimensionPixelSize(R.dimen.margin))
+        )
+
+        //endregion
+
+
 
         //region listener that checks when the date changes, allows the text box to show the selected day
         calendarView.setOnDateChangeListener{view,year,month,dayOfMonth ->
             val newMonth = month + 1
-            calText = "$newMonth/$dayOfMonth/$year"
+            calText = "0$newMonth/$dayOfMonth/$year"
             day = dayOfMonth
 
             // if check to see what month we're in
@@ -138,5 +143,6 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, CreateEventActivity::class.java)
         //intent.putExtra("selectedDate",calText)
         startActivity(intent)
+
     }
 }

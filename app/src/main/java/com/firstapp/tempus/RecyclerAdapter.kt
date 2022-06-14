@@ -45,8 +45,8 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
         //juneTest.addEvents(6,groupOfTest)
         //juneTest.addEvents(8,groupOfTest2)
         //juneTest.addEvent(6,Event("june7","01:00","Test7"))
-        juneTest.randomize()
-        julyTest.addEvents(0,groupOfTest3)
+        //juneTest.randomize()
+        //julyTest.addEvents(0,groupOfTest3)
 
     }
     var recyclerDate = Calendar.getInstance().get(Calendar.DATE)

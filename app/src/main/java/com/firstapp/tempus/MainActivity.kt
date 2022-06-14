@@ -3,13 +3,18 @@ package com.firstapp.tempus
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.CalendarView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.*
@@ -18,9 +23,11 @@ class MainActivity : AppCompatActivity() {
 
     // Create the authentication variable - Gabriel
     private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
 
     private var layoutManager: RecyclerView.LayoutManager? = null
     private var adapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>? = null
+    private lateinit var calText:String
 
     // Upon starting this screen, evaluate if the user is signed in or not - Gabriel
     override fun onStart(){
@@ -35,6 +42,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         // Initialize the authentication variable - Gabriel
         auth = Firebase.auth
+        db = Firebase.firestore
+
         // Temporary line of code to correct any issues with authenticating after logging in once (just sign the user out before anything occurs) - Gabriel
         //auth.signOut()
 
@@ -46,18 +55,16 @@ class MainActivity : AppCompatActivity() {
         val calPlaceHolder = Calendar.getInstance()
         var day = calPlaceHolder.get(Calendar.DAY_OF_MONTH)
 
-        //init the month
-        monthTest = juneTest
-
         //region Text view for date change
 
         //Initializes the textView to display the current date
-        val sdf = SimpleDateFormat("M/dd/yyyy", Locale.US)
+        val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
         val currentDate = sdf.format(Date())
         textView.text = currentDate
 
-
         //endregion
+
+
 
         //region RecycleView
 
@@ -67,7 +74,6 @@ class MainActivity : AppCompatActivity() {
         recyclerEvent.layoutManager = layoutManager
         adapter = RecyclerAdapter()
         (adapter as RecyclerAdapter).changeDate(day)
-        recyclerEvent.adapter = adapter
 
 
 
@@ -77,21 +83,36 @@ class MainActivity : AppCompatActivity() {
         )
         //endregion
 
+        //region init the month via firebase
+
+        db.collection("Users").document(auth.uid.toString()).collection(currentDate.substring(6))
+            .document(currentDate.substring(0, 2)).collection("Events")
+            .get()
+            .addOnSuccessListener { result->
+                for(document in result){
+                    val eventPlaceHolder = document.toObject<Event>()
+                    val datePlaceHolder = eventPlaceHolder.mDate.substring(3,5).toInt()
+                    monthTest.addEvent(datePlaceHolder-1,eventPlaceHolder)
+                }
+            }
+            .addOnFailureListener{ exception ->
+                Toast.makeText(this@MainActivity, "Failed", Toast.LENGTH_SHORT).show()
+
+            }
+
+        recyclerEvent.adapter = adapter
+
+        //endregion
 
 
         //a listener that checks when the date changes, allows the text box to show the selected day
         calendarView.setOnDateChangeListener{view,year,month,dayOfMonth ->
             val newMonth = month + 1
-            val calText = "$newMonth/$dayOfMonth/$year"
+            calText = "$newMonth/$dayOfMonth/$year"
             day = dayOfMonth
 
             // if check to see what month we're in
-            if(newMonth == 6){
-                monthTest = juneTest
-            }
-            else if(newMonth == 7){
-                monthTest = julyTest
-            }
+
 
             textView.text = calText
             //allows the listener to be able to dynamically change the recycle view
@@ -115,6 +136,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun goToCreate(view: View){
-        startActivity(Intent(this, CreateEventActivity::class.java))
+        val intent = Intent(this, CreateEventActivity::class.java)
+        //intent.putExtra("selectedDate",calText)
+        startActivity(intent)
     }
 }

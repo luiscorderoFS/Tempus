@@ -41,6 +41,7 @@ class CreateEventActivity : AppCompatActivity() {
         val dateText: TextView = findViewById(R.id.date_text)
         val timeText: TextView = findViewById(R.id.time_text)
 
+
         var date = MaterialDatePicker.todayInUtcMilliseconds()
         var dateDummy: Long
         var hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
@@ -61,9 +62,10 @@ class CreateEventActivity : AppCompatActivity() {
             // when user clicks "OK"
             datePicker.addOnPositiveButtonClickListener {
                 // set text to selected date
-                val simpleDateFormat = SimpleDateFormat("MM/dd/yyyy")
                 date = datePicker.selection!!
                 dateDummy = date + 86400000
+                val simpleDateFormat = SimpleDateFormat("MM/dd/yyyy")
+
                 val format = simpleDateFormat.format(dateDummy)
                 dateText.text = String.format(format)
             }
@@ -99,37 +101,11 @@ class CreateEventActivity : AppCompatActivity() {
             var eventTitle: String = findViewById<EditText>(R.id.title_text).text.toString()
             var eventLocation: String = findViewById<EditText>(R.id.location_text).text.toString()
 
-            // Upon clicking the button, create a hashmap with the inputted data - Gabriel
-            val data = hashMapOf<Any?, Any?>(
-                "Event Title" to eventTitle,
-                "Event Location" to eventLocation,
-                "Event Date" to dateText.text.toString(),
-                "Event Time" to timeText.text.toString()
-            )
-
-
             val eventTest = Event(eventTitle,timeText.text.toString(),eventLocation,dateText.text.toString())
-
+            val dateOfEvent:String = dateText.text.toString().substring(3, 5)
             // Coll -> Doc -> Coll ->Doc -> Coll -> Doc
             // Then, create a document which contains the data of the hash map in the following path: Users->UserID->Year->Month->Events->Event Title - Gabriel
-           /* db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
-                                                                                                         // Coll -> Doc -> Coll ->Doc -> Coll -> Doc
-            // Then, create a document which contains the data of the hash map in the following path logic: Users->UserID->Year->Month->Events->Event Title - Gabriel
-            db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
-                .document(dateText.text.toString().substring(0, 2)).collection("Events").document(eventTitle).set(data)
-                .addOnCompleteListener{ task ->
-                    // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
-                    if(task.isSuccessful){
-                        Toast.makeText(this, "Database path creation successful!", Toast.LENGTH_SHORT).show()
-
-
-                        startActivity(Intent(this, MainActivity::class.java))
-                    // Otherwise, display a Toast message that the creation failed - Gabriel
-                    } else {
-                        Toast.makeText(this, "Unable to create database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
-                    }
-                }*/
-
+            //*Luis* edited the Set command to be able to accept an object instead of a hashmap
             db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
                 .document(dateText.text.toString().substring(0, 2)).collection("Events").document().set(eventTest)
                 .addOnCompleteListener{ task ->
@@ -144,6 +120,8 @@ class CreateEventActivity : AppCompatActivity() {
                         Toast.makeText(this, "Unable to create database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
                     }
                 }
+
+            monthTest.addEvent(dateOfEvent.toInt()-1,eventTest)
         }
     }
 

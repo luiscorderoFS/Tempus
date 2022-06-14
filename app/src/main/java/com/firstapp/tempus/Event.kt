@@ -13,6 +13,8 @@ class Event(title:String, time:String, location:String, date:String = "", NumID:
     var mDocID = DocID
     var mDesc = desc
 
+    //Allows the recycleView on MainActivity to sort the events based on the time, from descending
+    //order
     override fun compareTo(other: Event): Int {
         val thisString = this.mTime
         val otherString = other.mTime

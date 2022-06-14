@@ -3,7 +3,6 @@ package com.firstapp.tempus
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.CalendarView
 import android.widget.TextView
@@ -18,6 +17,8 @@ import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.*
+
+var localMonth:Month = Month()
 
 class MainActivity : AppCompatActivity() {
 
@@ -64,8 +65,6 @@ class MainActivity : AppCompatActivity() {
 
         //endregion
 
-
-
         //region RecycleView
 
         //next few lines initialize the recyclerview
@@ -83,7 +82,7 @@ class MainActivity : AppCompatActivity() {
         )
         //endregion
 
-        //region init the month via firebase
+        //region Initializes the month via firebase
 
         db.collection("Users").document(auth.uid.toString()).collection(currentDate.substring(6))
             .document(currentDate.substring(0, 2)).collection("Events")
@@ -92,7 +91,7 @@ class MainActivity : AppCompatActivity() {
                 for(document in result){
                     val eventPlaceHolder = document.toObject<Event>()
                     val datePlaceHolder = eventPlaceHolder.mDate.substring(3,5).toInt()
-                    monthTest.addEvent(datePlaceHolder-1,eventPlaceHolder)
+                    localMonth.addEvent(datePlaceHolder-1,eventPlaceHolder)
                 }
             }
             .addOnFailureListener{ exception ->
@@ -100,12 +99,9 @@ class MainActivity : AppCompatActivity() {
 
             }
 
-        recyclerEvent.adapter = adapter
-
         //endregion
 
-
-        //a listener that checks when the date changes, allows the text box to show the selected day
+        //region listener that checks when the date changes, allows the text box to show the selected day
         calendarView.setOnDateChangeListener{view,year,month,dayOfMonth ->
             val newMonth = month + 1
             calText = "$newMonth/$dayOfMonth/$year"
@@ -121,18 +117,21 @@ class MainActivity : AppCompatActivity() {
 
 
         }
+        //endregion
 
-
+        //region A listener that allows the user to click on an Event from the view, and
+        //brings up it's full view
         (adapter as RecyclerAdapter).setOnItemClickListener(object: RecyclerAdapter.onItemClickListener{
             override fun onItemClick(position:Int){
 
                 //Toast.makeText(this@MainActivity, "You clicked on item no. ${position+1}", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this@MainActivity,ViewEvent::class.java)
-                intent.putExtra("event", monthTest.mDays[day-1][position])
+                intent.putExtra("event", localMonth.mDays[day-1][position])
 
                 startActivity(intent)
             }
         })
+        //endregion
     }
 
     fun goToCreate(view: View){

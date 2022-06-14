@@ -33,9 +33,6 @@ class CreateEventActivity : AppCompatActivity() {
         auth = Firebase.auth
         db = Firebase.firestore
 
-        // Variables that represent the event title and location edit text fields - Gabriel
-        var eventTitle: String = findViewById<EditText>(R.id.title_text).text.toString()
-        var eventLocation: String = findViewById<EditText>(R.id.location_text).text.toString()
 
         // set pointers to date and time buttons/textviews
         val createButton: Button = findViewById(R.id.create)
@@ -97,6 +94,9 @@ class CreateEventActivity : AppCompatActivity() {
         }
 
         createButton.setOnClickListener{
+            // Variables that represent the event title and location edit text fields - Gabriel
+            var eventTitle: String = findViewById<EditText>(R.id.title_text).text.toString()
+            var eventLocation: String = findViewById<EditText>(R.id.location_text).text.toString()
             // Upon clicking the button, create a hashmap with the inputted data - Gabriel
             val data = hashMapOf<Any?, Any?>(
                 "Event Title" to eventTitle,
@@ -106,9 +106,11 @@ class CreateEventActivity : AppCompatActivity() {
             )
 
 
+            val eventTest = Event(eventTitle,timeText.text.toString(),eventLocation,dateText.text.toString())
+
             // Coll -> Doc -> Coll ->Doc -> Coll -> Doc
             // Then, create a document which contains the data of the hash map in the following path: Users->UserID->Year->Month->Events->Event Title - Gabriel
-            db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
+           /* db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
                 .document(dateText.text.toString().substring(0, 2)).collection("Events").document(eventTitle).set(data)
                 .addOnCompleteListener{ task ->
                     // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
@@ -118,6 +120,21 @@ class CreateEventActivity : AppCompatActivity() {
 
                         startActivity(Intent(this, MainActivity::class.java))
                     // Otherwise, display a Toast message that the creation failed - Gabriel
+                    } else {
+                        Toast.makeText(this, "Unable to create database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
+                    }
+                }*/
+
+            db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
+                .document(dateText.text.toString().substring(0, 2)).collection("Events").document().set(eventTest)
+                .addOnCompleteListener{ task ->
+                    // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
+                    if(task.isSuccessful){
+                        Toast.makeText(this, "Database path creation successful!", Toast.LENGTH_SHORT).show()
+
+
+                        startActivity(Intent(this, MainActivity::class.java))
+                        // Otherwise, display a Toast message that the creation failed - Gabriel
                     } else {
                         Toast.makeText(this, "Unable to create database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
                     }

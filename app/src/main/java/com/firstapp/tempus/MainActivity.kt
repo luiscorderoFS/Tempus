@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         val calPlaceHolder = Calendar.getInstance()
         var day = calPlaceHolder.get(Calendar.DAY_OF_MONTH)
 
+        //init the month
         monthTest = juneTest
 
         //region Text view for date change

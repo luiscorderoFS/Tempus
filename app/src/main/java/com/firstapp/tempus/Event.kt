@@ -2,7 +2,7 @@ package com.firstapp.tempus
 
 import java.io.Serializable
 
-class Event(title:String, time:String, date:String, location:String = "", desc:String = "") : Serializable, Comparable<Event>{
+class Event(title:String, time:String, location:String, date:String = "", desc:String = "") : Serializable, Comparable<Event>{
     var mTitle = title
     var mTime = time
     var mDate = date

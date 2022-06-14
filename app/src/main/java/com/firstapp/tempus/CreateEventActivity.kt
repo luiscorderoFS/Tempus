@@ -33,6 +33,7 @@ class CreateEventActivity : AppCompatActivity() {
         auth = Firebase.auth
         db = Firebase.firestore
 
+
         // set pointers to date and time buttons/textviews
         val createButton: Button = findViewById(R.id.create)
         val dateButton: Button = findViewById(R.id.date)
@@ -105,6 +106,13 @@ class CreateEventActivity : AppCompatActivity() {
                 "Event Date" to dateText.text.toString(),
                 "Event Time" to timeText.text.toString()
             )
+
+
+            val eventTest = Event(eventTitle,timeText.text.toString(),eventLocation,dateText.text.toString())
+
+            // Coll -> Doc -> Coll ->Doc -> Coll -> Doc
+            // Then, create a document which contains the data of the hash map in the following path: Users->UserID->Year->Month->Events->Event Title - Gabriel
+           /* db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
                                                                                                          // Coll -> Doc -> Coll ->Doc -> Coll -> Doc
             // Then, create a document which contains the data of the hash map in the following path logic: Users->UserID->Year->Month->Events->Event Title - Gabriel
             db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
@@ -113,6 +121,23 @@ class CreateEventActivity : AppCompatActivity() {
                     // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
                     if(task.isSuccessful){
                         Toast.makeText(this, "Database path creation successful!", Toast.LENGTH_SHORT).show()
+
+
+                        startActivity(Intent(this, MainActivity::class.java))
+                    // Otherwise, display a Toast message that the creation failed - Gabriel
+                    } else {
+                        Toast.makeText(this, "Unable to create database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
+                    }
+                }*/
+
+            db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
+                .document(dateText.text.toString().substring(0, 2)).collection("Events").document().set(eventTest)
+                .addOnCompleteListener{ task ->
+                    // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
+                    if(task.isSuccessful){
+                        Toast.makeText(this, "Database path creation successful!", Toast.LENGTH_SHORT).show()
+
+
                         startActivity(Intent(this, MainActivity::class.java))
                     // Otherwise, display a Toast message that the creation failed - Gabriel
                     } else {

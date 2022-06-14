@@ -1,5 +1,8 @@
 package com.firstapp.tempus
 
+import java.util.*
+import kotlin.collections.ArrayList
+
 
 class Month(){
     //var mDays = arrayOf(31,arrayListOf<Event>())//Array(arrayListOf<Event>())
@@ -14,5 +17,15 @@ class Month(){
     fun addEvent(date:Int , event : Event){
         mDays[date].add(event)
         mDays[date].sort()
+    }
+
+    fun randomize(){
+        var randy = Random()
+        for (i in 0..30){
+            this.addEvent(i,Event("Test 1",randy.nextInt(24).toString(),randy.nextInt().toString()))
+            this.addEvent(i,Event("Test 2",randy.nextInt(24).toString(),randy.nextInt().toString()))
+            this.addEvent(i,Event("Test 3",randy.nextInt(24).toString(),randy.nextInt().toString()))
+
+        }
     }
 }

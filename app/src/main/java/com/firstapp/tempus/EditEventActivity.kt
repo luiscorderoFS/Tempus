@@ -164,7 +164,7 @@ class EditEventActivity : AppCompatActivity() {
         dateText.text = format
 
         // set text to show current time
-        simpleDateFormat = SimpleDateFormat("HH:mm a")
+        simpleDateFormat = SimpleDateFormat("h:mm a")
         // Instead of using the current time, use the time found in the calendar variable's fields.
         // Note: the calendar value being inputted is then formatted as HH:MM (H = hour, M = minute).
         // Then, the displayed text for the time picker fragment is set to this value upon creation - Gabriel

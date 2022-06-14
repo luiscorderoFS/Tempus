@@ -154,7 +154,7 @@ class CreateEventActivity : AppCompatActivity() {
         dateText.text = format
 
         // set text to show current time
-        simpleDateFormat = SimpleDateFormat("HH:mm a")
+        simpleDateFormat = SimpleDateFormat("h:mm a")
         format = simpleDateFormat.format(Date())
         timeText.text = format
     }

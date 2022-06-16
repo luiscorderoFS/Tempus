@@ -9,6 +9,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -44,6 +46,11 @@ class MainActivity : AppCompatActivity() {
         // Initialize the authentication variable - Gabriel
         auth = Firebase.auth
         db = Firebase.firestore
+
+        // Initialize places SDK
+        Places.initialize(applicationContext, "asdf")
+        // create PlacesClient instance
+        val placesClient = Places.createClient(this)
 
         // Temporary line of code to correct any issues with authenticating after logging in once (just sign the user out before anything occurs) - Gabriel
         //auth.signOut()

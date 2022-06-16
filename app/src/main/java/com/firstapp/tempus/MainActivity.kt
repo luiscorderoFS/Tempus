@@ -1,6 +1,10 @@
 package com.firstapp.tempus
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -11,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firstapp.tempus.BuildConfig.MAPS_API_KEY
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -36,6 +39,8 @@ class MainActivity : AppCompatActivity() {
     // Upon starting this screen, evaluate if the user is signed in or not - Gabriel
     override fun onStart(){
         super.onStart()
+        // Create notification channel on startup
+        Notifications.create().createNotificationChannel(this)
         // If not, got to the login/register screen - Gabriel
         if(auth.currentUser == null){
             startActivity(Intent(this, LoginOrRegisterActivity::class.java))
@@ -48,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         auth = Firebase.auth
         db = Firebase.firestore
 
-        // Initialize Places API
+        // Initialize Google Places API
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, MAPS_API_KEY)
         }
@@ -147,4 +152,22 @@ class MainActivity : AppCompatActivity() {
         //intent.putExtra("selectedDate",calText)
         startActivity(intent)
     }
+
+    /*fun createNotificationChannel() {
+        // if api >= 26, requires notification channel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // build notification channel
+            val channel = NotificationChannel(
+                CHANNEL_ID, CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_HIGH)
+            //.apply {
+            // do whatever with notification
+
+            //}
+            // create system notification manager
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            // create notification channel
+            manager.createNotificationChannel(channel)
+        }
+    }*/
 }

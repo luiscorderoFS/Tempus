@@ -243,9 +243,12 @@ class CreateEventActivity : AppCompatActivity() {
                     // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
                     if(task.isSuccessful){
                         Toast.makeText(this, "Database path creation successful!", Toast.LENGTH_SHORT).show()
-                        //startActivity(Intent(this, MainActivity::class.java))
+                        // Schedule Notification
                         Notifications.create().scheduleNotification(applicationContext, eventObj)
-                        startActivity(Intent(this, EditEventActivity::class.java))
+                        // Set data to "All Events" document for later use for notifications
+                        db.collection("Users").document(auth.uid.toString()).collection("All Events").document().set(eventObj)
+                        //startActivity(Intent(this, MainActivity::class.java))
+                        finish()
                     // Otherwise, display a Toast message that the creation failed - Gabriel
                     } else {
                         Toast.makeText(this, "Unable to create database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()

@@ -4,8 +4,10 @@ import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import java.util.*
 
@@ -21,6 +23,13 @@ class Notifications {
     }
     // Schedule Notification
     fun scheduleNotification(context: Context, eventObj: Event) {
+        // Create receiver for when app is killed
+        val receiver = ComponentName(context, AlarmReceiver::class.java)
+        context.packageManager.setComponentEnabledSetting(
+            receiver,
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+            PackageManager.DONT_KILL_APP
+        )
         // Create intent to AlarmReceiver class
         val intent = Intent(context, AlarmReceiver::class.java)
         intent.putExtra(NOTIFICATION_TITLE, eventObj.mTitle)

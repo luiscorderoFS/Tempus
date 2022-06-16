@@ -58,6 +58,17 @@ class MainActivity : AppCompatActivity() {
             Places.initialize(applicationContext, MAPS_API_KEY)
         }
 
+        // Look through "All Events"
+        db.collection("Users").document(auth.uid.toString()).collection("All Events").get()
+            .addOnSuccessListener { result->
+                // For each document, if notification time is in the future, set notification
+                for (document in result) {
+                    val eventObj = document.toObject<Event>()
+                    if (eventObj.mTimeInMillis >= Calendar.getInstance().timeInMillis)
+                        Notifications.create().scheduleNotification(this, eventObj)
+                }
+            }
+
         // Temporary line of code to correct any issues with authenticating after logging in once (just sign the user out before anything occurs) - Gabriel
         //auth.signOut()
 

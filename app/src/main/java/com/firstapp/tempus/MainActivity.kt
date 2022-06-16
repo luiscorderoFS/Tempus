@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.firstapp.tempus.BuildConfig.MAPS_API_KEY
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.firebase.auth.FirebaseAuth
@@ -47,10 +48,10 @@ class MainActivity : AppCompatActivity() {
         auth = Firebase.auth
         db = Firebase.firestore
 
-        // Initialize places SDK
-        Places.initialize(applicationContext, "asdf")
-        // create PlacesClient instance
-        val placesClient = Places.createClient(this)
+        // Initialize Places API
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, MAPS_API_KEY)
+        }
 
         // Temporary line of code to correct any issues with authenticating after logging in once (just sign the user out before anything occurs) - Gabriel
         //auth.signOut()

@@ -1,14 +1,32 @@
 package com.firstapp.tempus
 
-import android.content.Intent
+import android.Manifest
+import android.content.ContentValues.TAG
+import android.content.pm.PackageManager
+import android.location.Address
 import android.os.Bundle
-import android.view.View
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.Status
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.PlaceLikelihood
+import com.google.android.libraries.places.api.model.RectangularBounds
+import com.google.android.libraries.places.api.model.TypeFilter
+import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.google.firebase.auth.FirebaseAuth
@@ -18,6 +36,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class CreateEventActivity : AppCompatActivity() {
 
@@ -33,6 +52,65 @@ class CreateEventActivity : AppCompatActivity() {
         auth = Firebase.auth
         db = Firebase.firestore
 
+        /*// create PlacesClient instance
+        val placesClient = Places.createClient(this)
+
+        // Use fields to define the data types to return.
+        val placeFields: List<Place.Field> = listOf(Place.Field.LAT_LNG)
+
+        // Use the builder to create a FindCurrentPlaceRequest.
+        val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
+
+        // Call findCurrentPlace and handle the response (first check that the user has granted permission).
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED) {
+
+            val placeResponse = placesClient.findCurrentPlace(request)
+            placeResponse.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val response = task.result
+                    for (placeLikelihood: PlaceLikelihood in response?.placeLikelihoods
+                        ?: emptyList()) {
+                        Log.i(
+                            TAG,
+                            "Place '${placeLikelihood.place.name}' has likelihood: ${placeLikelihood.likelihood}"
+                        )
+                    }
+                } else {
+                    val exception = task.exception
+                    if (exception is ApiException) {
+                        Log.e(TAG, "Place not found: ${exception.statusCode}")
+                    }
+                }
+            }
+        } else {
+            // A local method to request required permissions;
+            // See https://developer.android.com/training/permissions/requesting
+            getLocationPermission()
+        }*/
+
+        // Get AutoComplete Fragment
+        val autoCompleteFragment = supportFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
+        // Construct and set autocomplete fragment settings
+        autoCompleteFragment.setTypeFilter(TypeFilter.ESTABLISHMENT)
+        autoCompleteFragment.setLocationBias(
+            RectangularBounds.newInstance(
+            LatLng(-33.880490, 151.184363),
+            LatLng(-33.858754, 151.229596)))
+        autoCompleteFragment.setCountries("US")
+        autoCompleteFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME))
+        autoCompleteFragment.setHint("Location")
+        // Autocomplete fragment listener
+        autoCompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            // Get info about selected place
+            override fun onPlaceSelected(place: Place) {
+                Log.i(TAG, "Place: ${place.name}, ${place.id}")
+            }
+            // Handle error
+            override fun onError(status: Status) {
+                Log.i(TAG, "An error occurred: $status")
+            }
+        })
 
         // set pointers to date and time buttons/textviews
         val createButton: Button = findViewById(R.id.create)
@@ -57,7 +135,7 @@ class CreateEventActivity : AppCompatActivity() {
                     .setTitleText("Date")
                     .setSelection(date)
                     .build()
-            datePicker.show(supportFragmentManager, "tag");
+            datePicker.show(supportFragmentManager, "tag")
 
             // when user clicks "OK"
             datePicker.addOnPositiveButtonClickListener {

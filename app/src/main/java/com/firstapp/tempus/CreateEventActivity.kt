@@ -224,6 +224,8 @@ class CreateEventActivity : AppCompatActivity() {
                 }
 
             localMonth.addEvent(dateOfEvent.toInt()-1,eventTest)
+            val time = date + (hour * 3600000) + (minute * 60000) + 14400000
+            Notifications.create().scheduleNotification(applicationContext, eventTitle, time)
         }
     }
 

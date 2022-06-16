@@ -7,9 +7,11 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import java.util.*
 
 val CHANNEL_ID = "channelID"
 val CHANNEL_NAME = "Event notifications"
+val NOTIFICATION_TITLE = "NotificationTitle"
 val NOTIFICATION_ID = 1
 
 class Notifications {
@@ -18,9 +20,10 @@ class Notifications {
         fun create(): Notifications = Notifications()
     }
     // Schedule Notification
-    private fun scheduleNotification(context: Context, time: Long) {
+    fun scheduleNotification(context: Context, title: String, time: Long) {
         // Create intent to AlarmReceiver
         val intent = Intent(context, AlarmReceiver::class.java)
+        intent.putExtra(NOTIFICATION_TITLE, title)
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             NOTIFICATION_ID,
@@ -37,13 +40,6 @@ class Notifications {
                 pendingIntent
             )
         }
-        /*else {
-            alarmManager.set(
-                AlarmManager.RTC_WAKEUP,
-                time,
-                pendingIntent
-            )
-        }*/
     }
     // Create Notification Channel
     fun createNotificationChannel(context: Context) {

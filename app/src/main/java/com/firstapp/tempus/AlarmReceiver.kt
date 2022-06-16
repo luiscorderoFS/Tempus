@@ -11,6 +11,7 @@ class AlarmReceiver : BroadcastReceiver() {
     // When this class is called through receiver
     override fun onReceive(context: Context, intent: Intent) {
 
+        val title = intent.getStringExtra(NOTIFICATION_TITLE)
         // create explicit intent of main activity
         val mainIntent = Intent(context, MainActivity::class.java)
         //  create pending intent
@@ -22,7 +23,7 @@ class AlarmReceiver : BroadcastReceiver() {
         }
         // create notification
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setContentTitle("Notification Title")
+            .setContentTitle(title)
             .setContentText("this is the content text")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setPriority(NotificationCompat.PRIORITY_MAX)

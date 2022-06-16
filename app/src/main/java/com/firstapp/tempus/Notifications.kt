@@ -12,7 +12,7 @@ import java.util.*
 val CHANNEL_ID = "channelID"
 val CHANNEL_NAME = "Event notifications"
 val NOTIFICATION_TITLE = "NotificationTitle"
-val NOTIFICATION_ID = 1
+val NOTIFICATION_ID = ""
 
 class Notifications {
     // Create companion object to be able to create an instance of this class
@@ -20,13 +20,14 @@ class Notifications {
         fun create(): Notifications = Notifications()
     }
     // Schedule Notification
-    fun scheduleNotification(context: Context, title: String, time: Long) {
-        // Create intent to AlarmReceiver
+    fun scheduleNotification(context: Context, eventObj: Event) {
+        // Create intent to AlarmReceiver class
         val intent = Intent(context, AlarmReceiver::class.java)
-        intent.putExtra(NOTIFICATION_TITLE, title)
+        intent.putExtra(NOTIFICATION_TITLE, eventObj.mTitle)
+        intent.putExtra(NOTIFICATION_ID, eventObj.mNumID.toInt())
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            NOTIFICATION_ID,
+            eventObj.mNumID.toInt(),
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
@@ -36,7 +37,7 @@ class Notifications {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
-                time,
+                eventObj.mTimeInMillis,
                 pendingIntent
             )
         }
@@ -46,13 +47,7 @@ class Notifications {
         // if api >= 26, requires notification channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // build notification channel
-            val channel = NotificationChannel(
-                CHANNEL_ID, CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_HIGH)
-            //.apply {
-            // do whatever with notification
-
-            //}
+            val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH)
             // create system notification manager
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             // create notification channel

@@ -2,6 +2,7 @@ package com.firstapp.tempus
 
 import android.Manifest
 import android.content.ContentValues.TAG
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Address
 import android.os.Bundle
@@ -20,12 +21,15 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.model.PlaceLikelihood
 import com.google.android.libraries.places.api.model.RectangularBounds
 import com.google.android.libraries.places.api.model.TypeFilter
+import com.google.android.libraries.places.api.net.FetchPlaceRequest
+import com.google.android.libraries.places.api.net.FetchPlaceResponse
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -52,10 +56,10 @@ class CreateEventActivity : AppCompatActivity() {
         auth = Firebase.auth
         db = Firebase.firestore
 
-        /*// create PlacesClient instance
+        // create PlacesClient instance
         val placesClient = Places.createClient(this)
 
-        // Use fields to define the data types to return.
+        /*// Use fields to define the data types to return.
         val placeFields: List<Place.Field> = listOf(Place.Field.LAT_LNG)
 
         // Use the builder to create a FindCurrentPlaceRequest.
@@ -105,6 +109,27 @@ class CreateEventActivity : AppCompatActivity() {
             // Get info about selected place
             override fun onPlaceSelected(place: Place) {
                 Log.i(TAG, "Place: ${place.name}, ${place.id}")
+                /*val placeId = "ChIJI1NEW_9YwokRZJ-aFyN078Y"
+
+                // Specify the fields to return.
+                val placeFields = listOf(Place.Field.NAME)
+
+                // Construct a request object, passing the place ID and fields array.
+                val request = FetchPlaceRequest.newInstance(placeId, placeFields)
+
+                placesClient.fetchPlace(request)
+                    .addOnSuccessListener { response: FetchPlaceResponse ->
+                        val places = response.place
+                        Log.i("Place found ", places.name)
+                        autoCompleteFragment.setText(places.name)
+                    }.addOnFailureListener { exception: Exception ->
+                        if (exception is ApiException) {
+                            Log.e(TAG, "Place not found: ${exception.message}")
+                            val statusCode = exception.statusCode
+                            TODO("Handle error with given status code")
+                        }
+                    }*/
+
             }
             // Handle error
             override fun onError(status: Status) {
@@ -124,6 +149,7 @@ class CreateEventActivity : AppCompatActivity() {
         var dateDummy = date
         var hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         var minute = Calendar.getInstance().get(Calendar.MINUTE)
+        var timeInMillis = date + (hour * 3600000) + (minute * 60000) + 14400000
         // set date and time views to current time
         setText()
 
@@ -145,6 +171,7 @@ class CreateEventActivity : AppCompatActivity() {
                 dateDummy = date + 86400000
                 val format = simpleDateFormat.format(dateDummy)
                 dateText.text = String.format(format)
+                timeInMillis = date + (hour * 3600000) + (minute * 60000) + 14400000
             }
         }
 
@@ -169,6 +196,7 @@ class CreateEventActivity : AppCompatActivity() {
                 calendar.set(0, 0, 0, hour, minute)
                 val format = simpleDateFormat.format(calendar.timeInMillis)
                 timeText.text = format
+                timeInMillis = date + (hour * 3600000) + (minute * 60000) + 14400000
             }
         }
 
@@ -207,7 +235,7 @@ class CreateEventActivity : AppCompatActivity() {
             databasePathID = databasePathID.substring(0,9)
 
             // Create the event object, which will take the place of the hash map - Gabriel
-            val eventObj = Event(eventTitle, timeText.text.toString(), eventLocation, dateText.text.toString(), databasePathID, auth.uid.toString(), databasePath.id.toString())
+            val eventObj = Event(eventTitle, timeText.text.toString(), eventLocation, dateText.text.toString(), timeInMillis, databasePathID, auth.uid.toString(), databasePath.id.toString())
 
             // Set the data in the relevant database path using the event object - Gabriel
             databasePath.set(eventObj)
@@ -216,7 +244,8 @@ class CreateEventActivity : AppCompatActivity() {
                     if(task.isSuccessful){
                         Toast.makeText(this, "Database path creation successful!", Toast.LENGTH_SHORT).show()
                         //startActivity(Intent(this, MainActivity::class.java))
-                        finish()
+                        Notifications.create().scheduleNotification(applicationContext, eventObj)
+                        startActivity(Intent(this, EditEventActivity::class.java))
                     // Otherwise, display a Toast message that the creation failed - Gabriel
                     } else {
                         Toast.makeText(this, "Unable to create database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
@@ -224,8 +253,7 @@ class CreateEventActivity : AppCompatActivity() {
                 }
 
             localMonth.addEvent(dateOfEvent.toInt()-1,eventTest)
-            val time = date + (hour * 3600000) + (minute * 60000) + 14400000
-            Notifications.create().scheduleNotification(applicationContext, eventTitle, time)
+
         }
     }
 

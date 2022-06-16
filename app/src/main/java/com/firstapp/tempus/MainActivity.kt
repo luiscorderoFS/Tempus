@@ -152,22 +152,4 @@ class MainActivity : AppCompatActivity() {
         //intent.putExtra("selectedDate",calText)
         startActivity(intent)
     }
-
-    /*fun createNotificationChannel() {
-        // if api >= 26, requires notification channel
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // build notification channel
-            val channel = NotificationChannel(
-                CHANNEL_ID, CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_HIGH)
-            //.apply {
-            // do whatever with notification
-
-            //}
-            // create system notification manager
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            // create notification channel
-            manager.createNotificationChannel(channel)
-        }
-    }*/
 }

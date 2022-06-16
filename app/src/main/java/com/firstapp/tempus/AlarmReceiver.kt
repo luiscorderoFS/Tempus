@@ -12,6 +12,7 @@ class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
         val title = intent.getStringExtra(NOTIFICATION_TITLE)
+        val notificationID = intent.getIntExtra(NOTIFICATION_ID, 0)
         // create explicit intent of main activity
         val mainIntent = Intent(context, MainActivity::class.java)
         //  create pending intent
@@ -32,6 +33,6 @@ class AlarmReceiver : BroadcastReceiver() {
             .build()
         // notify
         val  manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        manager.notify(NOTIFICATION_ID, notification)
+        manager.notify(notificationID, notification)
     }
 }

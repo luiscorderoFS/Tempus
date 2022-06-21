@@ -28,4 +28,9 @@ class Month(){
 
         }
     }
+    fun clear(){
+        for (i in 0..30){
+            mDays[i].clear()
+        }
+    }
 }

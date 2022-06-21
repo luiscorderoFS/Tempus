@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -17,18 +18,22 @@ import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
 
     // Create the authentication variable - Gabriel
-    private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
-
+    var auth: FirebaseAuth = Firebase.auth
+    var db: FirebaseFirestore = Firebase.firestore
 
     private var layoutManager: RecyclerView.LayoutManager? = null
     private lateinit var adapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>
+    private lateinit var recyclerEvent : RecyclerView
+    val calPlaceHolder = Calendar.getInstance()
+
     private lateinit var calText:String
+    var day = calPlaceHolder.get(Calendar.DAY_OF_MONTH)
 
     // Upon starting this screen, evaluate if the user is signed in or not - Gabriel
     override fun onStart(){
@@ -37,13 +42,27 @@ class MainActivity : AppCompatActivity() {
         if(auth.currentUser == null){
             startActivity(Intent(this, LoginOrRegisterActivity::class.java))
         }
+
+        //next few lines initialize the recyclerview
+        recyclerEvent = findViewById<RecyclerView>(R.id.recyclerEvent)
+        layoutManager = LinearLayoutManager(this)
+        recyclerEvent.layoutManager = layoutManager
+        (adapter as RecyclerAdapter).changeDate(day)
+        recyclerEvent.adapter = adapter
+
+
+
+        //Formatting of the recyclerView
+        recyclerEvent.addItemDecoration(
+            RecyclerAdapter.MarginItemDecoration(resources.getDimensionPixelSize(R.dimen.margin))
+        )
     }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Initialize the authentication variable - Gabriel
-        auth = Firebase.auth
-        db = Firebase.firestore
+        //auth = Firebase.auth
+        //db = Firebase.firestore
 
         // Temporary line of code to correct any issues with authenticating after logging in once (just sign the user out before anything occurs) - Gabriel
         //auth.signOut()
@@ -53,8 +72,6 @@ class MainActivity : AppCompatActivity() {
 
         val textView = findViewById<TextView>(R.id.textView)
         val calendarView = findViewById<CalendarView>(R.id.calendarView)
-        val calPlaceHolder = Calendar.getInstance()
-        var day = calPlaceHolder.get(Calendar.DAY_OF_MONTH)
 
         //region Text view for date change
 
@@ -65,42 +82,32 @@ class MainActivity : AppCompatActivity() {
 
         //endregion
 
+
         //region Initializes the month via firebase
 
-        /*db.collection("Users").document(auth.uid.toString()).collection(currentDate.substring(6))
-            .document(currentDate.substring(0, 2)).collection("Events")
-            .get()
-            .addOnSuccessListener { result->
-                for(document in result){
-                    val eventPlaceHolder = document.toObject<Event>()
-                    val datePlaceHolder = eventPlaceHolder.mDate.substring(3,5).toInt()
-                    localMonth.addEvent(datePlaceHolder-1,eventPlaceHolder)
-                }
-            }
-            .addOnFailureListener{ exception ->
-                Toast.makeText(this@MainActivity, "Failed", Toast.LENGTH_SHORT).show()
-
-            }*/
+        initializeDatabase(currentDate)
 
         //endregion
 
 
         //region RecycleView
 
-        //next few lines initialize the recyclerview
-        val recyclerEvent = findViewById<RecyclerView>(R.id.recyclerEvent)
-        layoutManager = LinearLayoutManager(this)
-        recyclerEvent.layoutManager = layoutManager
         adapter = RecyclerAdapter()
-        (adapter as RecyclerAdapter).changeDate(day)
-        recyclerEvent.adapter = adapter
 
-
-
-        //Formatting of the recyclerView
-        recyclerEvent.addItemDecoration(
-            RecyclerAdapter.MarginItemDecoration(resources.getDimensionPixelSize(R.dimen.margin))
-        )
+//        //next few lines initialize the recyclerview
+//        val recyclerEvent = findViewById<RecyclerView>(R.id.recyclerEvent)
+//        layoutManager = LinearLayoutManager(this)
+//        recyclerEvent.layoutManager = layoutManager
+//        adapter = RecyclerAdapter()
+//        (adapter as RecyclerAdapter).changeDate(day)
+//        recyclerEvent.adapter = adapter
+//
+//
+//
+//        //Formatting of the recyclerView
+//        recyclerEvent.addItemDecoration(
+//            RecyclerAdapter.MarginItemDecoration(resources.getDimensionPixelSize(R.dimen.margin))
+//        )
 
         //endregion
 
@@ -137,6 +144,21 @@ class MainActivity : AppCompatActivity() {
             }
         })
         //endregion
+    }
+
+    private fun initializeDatabase(currentDate: String){
+        db.collection("Users").document(auth.uid.toString()).collection(currentDate.substring(6))
+            .document(currentDate.substring(0, 2)).collection("Events")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val eventPlaceHolder = document.toObject<Event>()
+                    val datePlaceHolder = eventPlaceHolder.mDate.substring(3, 5).toInt()
+                    localMonth.addEvent(datePlaceHolder - 1, eventPlaceHolder)
+                }
+            }
+        TimeUnit.SECONDS.sleep(1L)
+
     }
 
     fun goToCreate(view: View){

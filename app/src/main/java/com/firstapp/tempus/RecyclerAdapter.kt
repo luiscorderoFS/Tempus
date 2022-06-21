@@ -34,25 +34,25 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     var recyclerDate = Calendar.getInstance().get(Calendar.DATE)
 
 
-    init{
-        //region Initializes the month via firebase
-        val auth: FirebaseAuth = Firebase.auth
-        val db: FirebaseFirestore = Firebase.firestore
-        val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
-        val currentDate = sdf.format(Date())
-        db.collection("Users").document(auth.uid.toString()).collection(currentDate.substring(6))
-            .document(currentDate.substring(0, 2)).collection("Events")
-            .get()
-            .addOnSuccessListener { result->
-                for(document in result){
-                    val eventPlaceHolder = document.toObject<Event>()
-                    val datePlaceHolder = eventPlaceHolder.mDate.substring(3,5).toInt()
-                    localMonth.addEvent(datePlaceHolder-1,eventPlaceHolder)
-                }
-            }
-        //endregion
-
-    }
+//    init{
+//        //region Initializes the month via firebase
+//        val auth: FirebaseAuth = Firebase.auth
+//        val db: FirebaseFirestore = Firebase.firestore
+//        val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
+//        val currentDate = sdf.format(Date())
+//        db.collection("Users").document(auth.uid.toString()).collection(currentDate.substring(6))
+//            .document(currentDate.substring(0, 2)).collection("Events")
+//            .get()
+//            .addOnSuccessListener { result->
+//                for(document in result){
+//                    val eventPlaceHolder = document.toObject<Event>()
+//                    val datePlaceHolder = eventPlaceHolder.mDate.substring(3,5).toInt()
+//                    localMonth.addEvent(datePlaceHolder-1,eventPlaceHolder)
+//                }
+//            }
+//        //endregion
+//
+//    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.event_layout,parent,false)

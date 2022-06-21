@@ -117,4 +117,10 @@ class MainActivity : AppCompatActivity() {
     fun goToCreate(view: View){
         startActivity(Intent(this, CreateEventActivity::class.java))
     }
+
+    fun logOutAndGoToLogIn(view:View){
+        monthTest.clear()
+        auth.signOut()
+        startActivity(Intent(this, LoginOrRegisterActivity::class.java))
+    }
 }

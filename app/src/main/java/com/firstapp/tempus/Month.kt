@@ -28,4 +28,12 @@ class Month(){
 
         }
     }
+    // Clear each index in mDays - Gabriel
+    fun clear(){
+        for(i in 0..30){
+            if(this.mDays[i] != null){
+                this.mDays[i].clear()
+            }
+        }
+    }
 }

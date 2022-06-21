@@ -75,4 +75,17 @@
         app:layout_constraintEnd_toStartOf="@+id/addButton"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/logOutButton"
+        style="@style/Widget.MaterialComponents.Button.Icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="344dp"
+        android:onClick="logOutAndGoToLogIn"
+        android:hint="Log Out"
+        app:icon="@drawable/ic_log_out"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

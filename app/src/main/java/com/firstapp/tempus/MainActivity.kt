@@ -139,4 +139,10 @@ class MainActivity : AppCompatActivity() {
         //intent.putExtra("selectedDate",calText)
         startActivity(intent)
     }
+
+    fun logOutAndGoToLogIn(view:View){
+        monthTest.clear()
+        auth.signOut()
+        startActivity(Intent(this, LoginOrRegisterActivity::class.java))
+    }
 }

@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun logOutAndGoToLogIn(view:View){
-        monthTest.clear()
+        localMonth.clear()
         auth.signOut()
         startActivity(Intent(this, LoginOrRegisterActivity::class.java))
     }

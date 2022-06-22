@@ -64,8 +64,8 @@ class MainActivity : AppCompatActivity() {
         //auth = Firebase.auth
         //db = Firebase.firestore
 
-        // Temporary line of code to correct any issues with authenticating after logging in once (just sign the user out before anything occurs) - Gabriel
-        //auth.signOut()
+        // Variable to find out what the current user's userID is, through debugging - Gabriel
+        //var test: String = auth.uid.toString()
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -151,6 +151,8 @@ class MainActivity : AppCompatActivity() {
             .document(currentDate.substring(0, 2)).collection("Events")
             .get()
             .addOnSuccessListener { result ->
+                // Clear the localMonth array before checking the database and filling it - Gabriel
+                localMonth.clear()
                 for (document in result) {
                     val eventPlaceHolder = document.toObject<Event>()
                     val datePlaceHolder = eventPlaceHolder.mDate.substring(3, 5).toInt()
@@ -168,9 +170,13 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    // Method used to log out of the application by the Logout Button - Gabriel
     fun logOutAndGoToLogIn(view:View){
+        // Clear the current month array - Gabriel
         localMonth.clear()
+        // Sign out of the application - Gabriel
         auth.signOut()
+        // Take the user to the LoginOrRegister Activity - Gabriel
         startActivity(Intent(this, LoginOrRegisterActivity::class.java))
     }
 }

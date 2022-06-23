@@ -149,7 +149,7 @@ class CreateEventActivity : AppCompatActivity() {
             //Updates the localMonth obj iff the month that was passed in from the mainActivity is the same as the user's
             //selected date
             if(selectedMonth == dateText.text.toString().substring(0, 2))
-                localMonth.addEvent(dateOfEvent.toInt()-1,eventTest)
+                localMonth.addEvent(dateOfEvent.toInt()-1,eventObj)
         }
     }
 

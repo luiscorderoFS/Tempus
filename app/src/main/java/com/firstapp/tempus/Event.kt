@@ -2,15 +2,17 @@ package com.firstapp.tempus
 
 import java.io.Serializable
 
-class Event(title:String, time:String, location:String, date:String = "", NumID:String = "", UserID:String = "", DocID:String = "", desc:String = "") : Serializable, Comparable<Event>{
-    constructor(): this("","","","","","","","")
+class Event(title:String, time:String, location:String, date:String = "", timeInMillis:Long = 0, NumID:String = "", UserID:String = "", DocID:String = "", desc:String = "") : Serializable, Comparable<Event>{
+    constructor(): this("","","","",0, "","","","")
     var mTitle = title
     var mTime = time
     var mDate = date
     var mLocation = location
+    var mTimeInMillis = timeInMillis
     var mNumID = NumID
     var mUserID = UserID
     var mDocID = DocID
+
     var mDesc = desc
 
     //Allows the recycleView on MainActivity to sort the events based on the time, from descending

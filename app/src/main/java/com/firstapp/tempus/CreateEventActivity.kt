@@ -1,14 +1,34 @@
 package com.firstapp.tempus
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Address
 import android.os.Bundle
-import android.view.View
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.Status
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.PlaceLikelihood
+import com.google.android.libraries.places.api.model.RectangularBounds
+import com.google.android.libraries.places.api.model.TypeFilter
+import com.google.android.libraries.places.api.net.FetchPlaceRequest
+import com.google.android.libraries.places.api.net.FetchPlaceResponse
+import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.google.firebase.auth.FirebaseAuth
@@ -36,6 +56,88 @@ class CreateEventActivity : AppCompatActivity() {
         //PutExtra Extraction, MainActivity hands off the current month of the calendar
         val selectedMonth:String = intent.getStringExtra("selectedMonth").toString()
 
+        // Thomas' autofill stuff:
+        // create PlacesClient instance
+        //val placesClient = Places.createClient(this)
+
+        /*// Use fields to define the data types to return.
+        val placeFields: List<Place.Field> = listOf(Place.Field.LAT_LNG)
+
+        // Use the builder to create a FindCurrentPlaceRequest.
+        val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
+
+        // Call findCurrentPlace and handle the response (first check that the user has granted permission).
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED) {
+
+            val placeResponse = placesClient.findCurrentPlace(request)
+            placeResponse.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val response = task.result
+                    for (placeLikelihood: PlaceLikelihood in response?.placeLikelihoods
+                        ?: emptyList()) {
+                        Log.i(
+                            TAG,
+                            "Place '${placeLikelihood.place.name}' has likelihood: ${placeLikelihood.likelihood}"
+                        )
+                    }
+                } else {
+                    val exception = task.exception
+                    if (exception is ApiException) {
+                        Log.e(TAG, "Place not found: ${exception.statusCode}")
+                    }
+                }
+            }
+        } else {
+            // A local method to request required permissions;
+            // See https://developer.android.com/training/permissions/requesting
+            getLocationPermission()
+        }*/
+
+        // Get AutoComplete Fragment
+        /*val autoCompleteFragment = supportFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
+        // Construct and set autocomplete fragment settings
+        autoCompleteFragment.setTypeFilter(TypeFilter.ESTABLISHMENT)
+        autoCompleteFragment.setLocationBias(
+            RectangularBounds.newInstance(
+            LatLng(-33.880490, 151.184363),
+            LatLng(-33.858754, 151.229596)))
+        autoCompleteFragment.setCountries("US")
+        autoCompleteFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME))
+        autoCompleteFragment.setHint("Location")
+        // Autocomplete fragment listener
+        autoCompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            // Get info about selected place
+            override fun onPlaceSelected(place: Place) {
+                Log.i(TAG, "Place: ${place.name}, ${place.id}")
+                *//*val placeId = "ChIJI1NEW_9YwokRZJ-aFyN078Y"
+
+                // Specify the fields to return.
+                val placeFields = listOf(Place.Field.NAME)
+
+                // Construct a request object, passing the place ID and fields array.
+                val request = FetchPlaceRequest.newInstance(placeId, placeFields)
+
+                placesClient.fetchPlace(request)
+                    .addOnSuccessListener { response: FetchPlaceResponse ->
+                        val places = response.place
+                        Log.i("Place found ", places.name)
+                        autoCompleteFragment.setText(places.name)
+                    }.addOnFailureListener { exception: Exception ->
+                        if (exception is ApiException) {
+                            Log.e(TAG, "Place not found: ${exception.message}")
+                            val statusCode = exception.statusCode
+                            TODO("Handle error with given status code")
+                        }
+                    }*//*
+
+            }
+            // Handle error
+            override fun onError(status: Status) {
+                Log.i(TAG, "An error occurred: $status")
+            }
+        })*/
+
         // set pointers to date and time buttons/textviews
         val createButton: Button = findViewById(R.id.create)
         val dateButton: Button = findViewById(R.id.date)
@@ -48,6 +150,7 @@ class CreateEventActivity : AppCompatActivity() {
         var dateDummy = date
         var hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         var minute = Calendar.getInstance().get(Calendar.MINUTE)
+        var timeInMillis = date + (hour * 3600000) + (minute * 60000) + 14400000
         // set date and time views to current time
         setText()
 
@@ -59,7 +162,7 @@ class CreateEventActivity : AppCompatActivity() {
                     .setTitleText("Date")
                     .setSelection(date)
                     .build()
-            datePicker.show(supportFragmentManager, "tag");
+            datePicker.show(supportFragmentManager, "tag")
 
             // when user clicks "OK"
             datePicker.addOnPositiveButtonClickListener {
@@ -69,6 +172,7 @@ class CreateEventActivity : AppCompatActivity() {
                 dateDummy = date + 86400000
                 val format = simpleDateFormat.format(dateDummy)
                 dateText.text = String.format(format)
+                timeInMillis = date + (hour * 3600000) + (minute * 60000) + 14400000
             }
         }
 
@@ -93,6 +197,7 @@ class CreateEventActivity : AppCompatActivity() {
                 calendar.set(0, 0, 0, hour, minute)
                 val format = simpleDateFormat.format(calendar.timeInMillis)
                 timeText.text = format
+                timeInMillis = date + (hour * 3600000) + (minute * 60000) + 14400000
             }
         }
 
@@ -130,7 +235,7 @@ class CreateEventActivity : AppCompatActivity() {
             databasePathID = databasePathID.substring(0,9)
 
             // Create the event object, which will take the place of the hash map - Gabriel
-            val eventObj = Event(eventTitle, timeText.text.toString(), eventLocation, dateText.text.toString(), databasePathID, auth.uid.toString(), databasePath.id.toString())
+            val eventObj = Event(eventTitle, timeText.text.toString(), eventLocation, dateText.text.toString(), timeInMillis, databasePathID, auth.uid.toString(), databasePath.id.toString())
 
             // Set the data in the relevant database path using the event object - Gabriel
             databasePath.set(eventObj)
@@ -138,6 +243,10 @@ class CreateEventActivity : AppCompatActivity() {
                     // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
                     if(task.isSuccessful){
                         Toast.makeText(this, "Database path creation successful!", Toast.LENGTH_SHORT).show()
+                        // Schedule Notification
+                        Notifications.create().scheduleNotification(applicationContext, eventObj)
+                        // Set data to "All Events" document for later use for notifications
+                        db.collection("Users").document(auth.uid.toString()).collection("All Events").document().set(eventObj)
                         //startActivity(Intent(this, MainActivity::class.java))
                         finish()
                     // Otherwise, display a Toast message that the creation failed - Gabriel

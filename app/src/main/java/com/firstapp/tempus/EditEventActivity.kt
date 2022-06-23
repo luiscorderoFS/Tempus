@@ -99,6 +99,7 @@ class EditEventActivity : AppCompatActivity() {
         var dateDummy = date
         var hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         var minute = Calendar.getInstance().get(Calendar.MINUTE)
+        var timeInMillis = date + (hour * 3600000) + (minute * 60000) + 14400000
         // set date and time views to current time
         setText()
 
@@ -120,6 +121,7 @@ class EditEventActivity : AppCompatActivity() {
                 dateDummy = date + 86400000
                 val format = simpleDateFormat.format(dateDummy)
                 dateText.text = String.format(format)
+                timeInMillis = date + (hour * 3600000) + (minute * 60000) + 14400000
             }
         }
 
@@ -144,6 +146,7 @@ class EditEventActivity : AppCompatActivity() {
                 calendar.set(0, 0, 0, hour, minute)
                 val format = simpleDateFormat.format(calendar.timeInMillis)
                 timeText.text = format
+                timeInMillis = date + (hour * 3600000) + (minute * 60000) + 14400000
             }
         }
 
@@ -162,7 +165,7 @@ class EditEventActivity : AppCompatActivity() {
                 .document(dateText.text.toString().substring(0, 2)).collection("Events").document(oldDocID)
 
             // Create the event object, which will take the place of the hash map - Gabriel
-            val eventObj = Event(eventTitle, timeText.text.toString(), eventLocation, dateText.text.toString(), oldNumID, auth.uid.toString(), oldDocID)
+            val eventObj = Event(eventTitle, timeText.text.toString(), eventLocation, dateText.text.toString(), timeInMillis, oldNumID, auth.uid.toString(), oldDocID)
 
             // Set the data in the relevant database path using the event object - Gabriel
             databasePath.set(eventObj)
@@ -172,6 +175,10 @@ class EditEventActivity : AppCompatActivity() {
                         localMonth.mDays[eventObj.mDate.substring(3,5).toInt()-1].removeAt(position)
                         Toast.makeText(this, "Database path edit successful!", Toast.LENGTH_SHORT).show()
                         localMonth.addEvent((eventObj.mDate.substring(3,5).toInt()-1),eventObj)
+                        // Schedule Notification
+                        Notifications.create().scheduleNotification(applicationContext, eventObj)
+                        // Set data to "All Events" document for later use for notifications
+                        db.collection("Users").document(auth.uid.toString()).collection("All Events").document().set(eventObj)
                         //startActivity(Intent(this, MainActivity::class.java))
                         globalEvent = eventObj
                         finish()

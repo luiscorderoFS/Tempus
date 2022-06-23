@@ -1,6 +1,10 @@
 package com.firstapp.tempus
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.CalendarView
@@ -10,6 +14,8 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.tasks.Task
+import com.firstapp.tempus.BuildConfig.MAPS_API_KEY
+import com.google.android.libraries.places.api.Places
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -38,6 +44,8 @@ class MainActivity : AppCompatActivity() {
     // Upon starting this screen, evaluate if the user is signed in or not - Gabriel
     override fun onStart(){
         super.onStart()
+        // Create notification channel on startup
+        Notifications.create().createNotificationChannel(this)
         // If not, got to the login/register screen - Gabriel
         if(auth.currentUser == null){
             startActivity(Intent(this, LoginOrRegisterActivity::class.java))
@@ -63,6 +71,22 @@ class MainActivity : AppCompatActivity() {
         // Initialize the authentication variable - Gabriel
         //auth = Firebase.auth
         //db = Firebase.firestore
+
+        // Initialize Google Places API
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, MAPS_API_KEY)
+        }
+
+        // Look through "All Events"
+        db.collection("Users").document(auth.uid.toString()).collection("All Events").get()
+            .addOnSuccessListener { result->
+                // For each document, if notification time is in the future, set notification
+                for (document in result) {
+                    val eventObj = document.toObject<Event>()
+                    if (eventObj.mTimeInMillis >= Calendar.getInstance().timeInMillis)
+                        Notifications.create().scheduleNotification(this, eventObj)
+                }
+            }
 
         // Temporary line of code to correct any issues with authenticating after logging in once (just sign the user out before anything occurs) - Gabriel
         //auth.signOut()

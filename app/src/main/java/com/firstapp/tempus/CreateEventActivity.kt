@@ -86,7 +86,7 @@ class CreateEventActivity : AppCompatActivity() {
             // when user clicks "OK"
             timePicker.addOnPositiveButtonClickListener {
                 // set text to selected date
-                val simpleDateFormat = SimpleDateFormat("h:mm a")
+                val simpleDateFormat = SimpleDateFormat("hh:mm a")
                 hour = timePicker.hour
                 minute = timePicker.minute
                 val calendar = Calendar.getInstance()
@@ -164,7 +164,7 @@ class CreateEventActivity : AppCompatActivity() {
         dateText.text = format
 
         // set text to show current time
-        simpleDateFormat = SimpleDateFormat("h:mm a")
+        simpleDateFormat = SimpleDateFormat("hh:mm a")
         format = simpleDateFormat.format(Date())
         timeText.text = format
     }

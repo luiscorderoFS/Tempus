@@ -27,12 +27,12 @@ class EditEventActivity : AppCompatActivity() {
 
     // Variables containing the relevant fields found in the chosen document before editing.
     // Set as static values for testing. Otherwise, plug in proper values based on Main Activity recycler view - Gabriel
-    var oldEventTitle: String = "Ex"
-    var oldEventLocation: String = "Ex"
-    var oldEventDate: String = "06/14/2022"
-    var oldEventTime: String = "14:25"
-    var oldNumID: String = "699012175"
-    var oldDocID: String = "EZyKZ5N1URMggOnoSVRJ"
+//    var oldEventTitle: String = "Example"
+//    var oldEventLocation: String = "Example"
+//    var oldEventDate: String = "06/22/2022"
+//    var oldEventTime: String = "06:00 PM"
+//    var oldNumID: String = "731011209"
+//    var oldDocID: String = "IexZdClBs1tDBZKcJWWN"
 
     // Initialize the calendar variable, used to store the date and time variables as integers, rather than strings - Gabriel
     val calendar = Calendar.getInstance()
@@ -46,12 +46,37 @@ class EditEventActivity : AppCompatActivity() {
         auth = Firebase.auth
         db = Firebase.firestore
 
-        // Set the calendar values, which are set in the following order: year, month, day (date), hourOfDay, minute - Gabriel
-        calendar.set(oldEventDate.substring(6).toInt(),
-            oldEventDate.substring(0, 2).toInt()-1,
-            oldEventDate.substring(3, 5).toInt(),
-            oldEventTime.substring(0, 2).toInt(),
-            oldEventTime.substring(3).toInt())
+        // Get the stored event object passed through the intent provided by the View Event Activity - Gabriel
+        val bundle : Bundle?= intent.extras
+        val oldEvent:Event = bundle!!.get("event") as Event
+
+        // Assign the event object's variables to specific variables - Gabriel
+        var oldEventTitle = oldEvent.mTitle
+        var oldEventLocation = oldEvent.mLocation
+        var oldEventDate = oldEvent.mDate
+        var oldEventTime = oldEvent.mTime
+        var oldNumID = oldEvent.mNumID
+        var oldDocID = oldEvent.mDocID
+
+        // Create a temporary string that will contain the particular 12 hour period the original time is within - Gabriel
+        var tempString = oldEventTime.substring(6)
+        // If the temporary string is the PM time period, then initialize the calendar, adding 12 additional hours to the hourOfDay value - Gabriel
+        if(tempString == "PM"){
+            // Set the calendar values, which are set in the following order: year, month, day (date), hourOfDay, minute - Gabriel
+            calendar.set(oldEventDate.substring(6).toInt(),
+                oldEventDate.substring(0, 2).toInt()-1,
+                oldEventDate.substring(3, 5).toInt(),
+                oldEventTime.substring(0, 2).toInt() + 12,
+                oldEventTime.substring(3, 5).toInt())
+        // Otherwise, if it is AM, set the calendar with no offsets - Gabriel
+        } else {
+            // Set the calendar values, which are set in the following order: year, month, day (date), hourOfDay, minute - Gabriel
+            calendar.set(oldEventDate.substring(6).toInt(),
+                oldEventDate.substring(0, 2).toInt()-1,
+                oldEventDate.substring(3, 5).toInt(),
+                oldEventTime.substring(0, 2).toInt(),
+                oldEventTime.substring(3, 5).toInt())
+        }
 
         // Set the text of the Title and Location Edit Text boxes to their relevant values, found in the old info variables - Gabriel
         findViewById<EditText>(R.id.title_text).setText(oldEventTitle)
@@ -63,9 +88,10 @@ class EditEventActivity : AppCompatActivity() {
         val timeButton: Button = findViewById(R.id.start_time)
         val dateText: TextView = findViewById(R.id.date_text)
         val timeText: TextView = findViewById(R.id.time_text)
+        val deleteButton: Button = findViewById(R.id.delete)
 
         // Rather than initialize the date in the date picker fragment to the current date, set it to the original date, found in the document to be "edited" - Gabriel
-        var date = calendar.timeInMillis
+        var date = calendar.timeInMillis - 86400000
         // Initialize the dateDummy variable with the value of date, to smooth things over when being used by others - Gabriel
         var dateDummy = date
         var hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
@@ -96,7 +122,7 @@ class EditEventActivity : AppCompatActivity() {
 
         timeButton.setOnClickListener{
             // create and show timepicker
-            val timePicker =
+            var timePicker =
                 MaterialTimePicker.Builder()
                     .setTimeFormat(TimeFormat.CLOCK_12H)
                     .setHour(hour)
@@ -108,7 +134,7 @@ class EditEventActivity : AppCompatActivity() {
             // when user clicks "OK"
             timePicker.addOnPositiveButtonClickListener {
                 // set text to selected date
-                val simpleDateFormat = SimpleDateFormat("h:mm a")
+                val simpleDateFormat = SimpleDateFormat("hh:mm a")
                 hour = timePicker.hour
                 minute = timePicker.minute
                 val calendar = Calendar.getInstance()
@@ -126,7 +152,7 @@ class EditEventActivity : AppCompatActivity() {
 
             // Delete the old document that is being "edited" using the old info variables for pathing - Gabriel
             db.collection("Users").document(auth.uid.toString()).collection(oldEventDate.substring(6))
-                  .document(oldEventDate.substring(0, 2)).collection("Events").document(oldEventTitle).delete()
+                  .document(oldEventDate.substring(0, 2)).collection("Events").document(oldDocID).delete()
 
             // Rather than create the path upon document creation, throw the proper path into a reference variable for the sake of clarity - Gabriel
             var databasePath = db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
@@ -143,9 +169,27 @@ class EditEventActivity : AppCompatActivity() {
                         Toast.makeText(this, "Database path edit successful!", Toast.LENGTH_SHORT).show()
                         //startActivity(Intent(this, MainActivity::class.java))
                         finish()
-                        // Otherwise, display a Toast message that the creation failed - Gabriel
+                    // Otherwise, display a Toast message that the creation failed - Gabriel
                     } else {
                         Toast.makeText(this, "Unable to edit database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+        }
+
+        deleteButton.setOnClickListener{
+            // Delete the document using the old data fields.
+            // Note: there is an unusual bug right now where the program will crash upon attempting to delete
+            //       a document that was made during the same run time. OldDocID ends up empty, for some reason - Gabriel
+            db.collection("Users").document(auth.uid.toString()).collection(oldEventDate.substring(6))
+                .document(oldEventDate.substring(0, 2)).collection("Events").document(oldDocID).delete()
+                .addOnCompleteListener{ task ->
+                    // Upon a successful document path deletion, display a Toast message and change the activity - Gabriel
+                    if(task.isSuccessful){
+                        Toast.makeText(this, "Database path deletion successful!", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this, MainActivity::class.java))
+                    // Otherwise, display a Toast message that the deletion failed - Gabriel
+                    } else {
+                        Toast.makeText(this, "Unable to delete database path. Please try again later.", Toast.LENGTH_SHORT).show()
                     }
                 }
         }
@@ -161,11 +205,11 @@ class EditEventActivity : AppCompatActivity() {
         // Instead of using the current date, use the date found in the calendar variable's fields.
         // Note: the calendar value being inputted is then formatted as mm/dd/yyyy.
         // Then, the displayed text for the date picker fragment is set to this value upon creation - Gabriel
-        var format = simpleDateFormat.format(calendar.timeInMillis)
+        var format = simpleDateFormat.format(calendar.timeInMillis - 86400000) // Offset by one day, in millis, since it is displaying the day off by one - Gabriel
         dateText.text = format
 
         // set text to show current time
-        simpleDateFormat = SimpleDateFormat("h:mm a")
+        simpleDateFormat = SimpleDateFormat("hh:mm a")
         // Instead of using the current time, use the time found in the calendar variable's fields.
         // Note: the calendar value being inputted is then formatted as HH:MM (H = hour, M = minute).
         // Then, the displayed text for the time picker fragment is set to this value upon creation - Gabriel

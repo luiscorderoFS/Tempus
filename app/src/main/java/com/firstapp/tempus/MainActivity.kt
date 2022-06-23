@@ -5,8 +5,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.CalendarView
 import android.widget.TextView
+import android.view.View
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -153,6 +156,8 @@ class MainActivity : AppCompatActivity() {
             .document(currentDate.substring(0, 2)).collection("Events")
             .get()
             .addOnSuccessListener { result ->
+                // Clear the localMonth array before checking the database and filling it - Gabriel
+                localMonth.clear()
                 for (document in result) {
                     val eventPlaceHolder = document.toObject<Event>()
                     val datePlaceHolder = eventPlaceHolder.mDate.substring(3, 5).toInt()
@@ -170,9 +175,12 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun logOutAndGoToLogIn() {
+    // Method used to log out of the application by the Logout Button - Gabriel
+    fun logOutAndGoToLogIn(view:View){
+        // Clear the current month array - Gabriel
         localMonth.clear()
+        // Sign out of the application - Gabriel
         auth.signOut()
+        // Take the user to the LoginOrRegister Activity - Gabriel
         startActivity(Intent(this, LoginOrRegisterActivity::class.java))
     }
-}

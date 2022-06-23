@@ -7,6 +7,16 @@
     android:padding="16dp"
     tools:context=".EditEventActivity">
 
+    <Button
+        android:id="@+id/delete"
+        android:layout_width="match_parent"
+        android:layout_height="66dp"
+        android:layout_marginTop="168dp"
+        android:text="Delete Event"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/start_time" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/title"
         android:layout_width="match_parent"

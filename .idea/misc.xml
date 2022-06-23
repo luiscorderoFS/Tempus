@@ -4,11 +4,13 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Project and Portfolio II - Computer Science/Tempus Project/Tempus/app/src/main/res/layout/activity_create_event.xml" value="0.33" />
-        <entry key="..\:/Project and Portfolio II - Computer Science/Tempus Project/Tempus/app/src/main/res/layout/activity_edit_event.xml" value="0.36666666666666664" />
         <entry key="..\:/Project and Portfolio II - Computer Science/Tempus Project/Tempus/app/src/main/res/layout/activity_login.xml" value="0.33" />
         <entry key="..\:/Project and Portfolio II - Computer Science/Tempus Project/Tempus/app/src/main/res/layout/activity_login_or_register.xml" value="0.33" />
         <entry key="..\:/Project and Portfolio II - Computer Science/Tempus Project/Tempus/app/src/main/res/layout/activity_register.xml" value="0.25" />
         <entry key="..\:/Project and Portfolio II - Computer Science/Tempus Project/Tempus/app/src/main/res/layout/event_layout.xml" value="0.17831813576494426" />
+        <entry key="..\:/Project and Portfolio II - Computer Science/Tempus/app/src/main/res/layout/activity_edit_event.xml" value="0.36666666666666664" />
+        <entry key="..\:/Project and Portfolio II - Computer Science/Tempus/app/src/main/res/layout/activity_main.xml" value="0.36666666666666664" />
+        <entry key="..\:/Project and Portfolio II - Computer Science/Tempus/app/src/main/res/layout/activity_view_event.xml" value="0.358695652173913" />
         <entry key="..\:/Users/Luis Cordero/OneDrive/Desktop/Tempus/app/src/main/res/layout/activity_display_create_event.xml" value="0.33" />
         <entry key="..\:/Users/Luis Cordero/OneDrive/Desktop/Tempus/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/Users/Luis Cordero/OneDrive/Desktop/Tempus/app/src/main/res/layout/event_layout.xml" value="0.25" />

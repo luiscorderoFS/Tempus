@@ -4,7 +4,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class Month(){
+class Month() {
     //var mDays = arrayOf(31,arrayListOf<Event>())//Array(arrayListOf<Event>())
     var mDays = Array(31,{arrayListOf<Event>()})
 

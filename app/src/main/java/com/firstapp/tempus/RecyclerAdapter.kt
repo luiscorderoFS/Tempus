@@ -5,21 +5,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.ktx.Firebase
-import java.text.SimpleDateFormat
 import java.util.*
 
-var localMonth:Month = Month()
+
 
 class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
-    //region OnClickListener stuff
+
     private lateinit var mListener : onItemClickListener
+    var mRecyclerDate = Calendar.getInstance().get(Calendar.DATE)
+
+
 
     interface onItemClickListener{
         fun onItemClick(position: Int){
@@ -31,8 +27,9 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     }
     //endregion
 
-    var recyclerDate = Calendar.getInstance().get(Calendar.DATE)
-
+//    init{
+//        localMonth = monthPlaceholder
+//    }
 
 //    init{
 //        //region Initializes the month via firebase
@@ -62,22 +59,24 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val newPos = position + 1
 
-        holder.eventTitle.text = localMonth.mDays[recyclerDate-1][position].mTitle
+        holder.eventTitle.text = localMonth.mDays[mRecyclerDate-1][position].mTitle
         holder.eventNumber.text = "${newPos}.)"
-        holder.eventTime.text = "Start: ${localMonth.mDays[recyclerDate-1][position].mTime}"
-        holder.eventLocation.text = localMonth.mDays[recyclerDate-1][position].mLocation
+        holder.eventTime.text = "Start: ${localMonth.mDays[mRecyclerDate-1][position].mTime}"
+        holder.eventLocation.text = localMonth.mDays[mRecyclerDate-1][position].mLocation
 
 
     }
 
     override fun getItemCount(): Int {
-        return localMonth.mDays[recyclerDate-1].size
+        return localMonth.mDays[mRecyclerDate-1].size
     }
 
     //this function is used by the listener in MainActivity.kt to know what date we're in
     fun changeDate(date: Int){
-        this.recyclerDate = date
+        this.mRecyclerDate = date
     }
+
+
 
     inner class ViewHolder(itemView: View,listener: onItemClickListener): RecyclerView.ViewHolder(itemView){
         var eventNumber: TextView

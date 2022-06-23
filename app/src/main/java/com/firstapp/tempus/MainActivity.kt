@@ -122,7 +122,6 @@ class MainActivity : AppCompatActivity() {
             // if check to see what month we're in
             if(monthCheck != newMonth){
                 monthCheck = newMonth
-                localMonth.clear()
                 initializeDatabase("0$newMonth/$dayOfMonth/$year")
 
             }
@@ -144,7 +143,7 @@ class MainActivity : AppCompatActivity() {
                 //Toast.makeText(this@MainActivity, "You clicked on item no. ${position+1}", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this@MainActivity,ViewEvent::class.java)
                 intent.putExtra("event", localMonth.mDays[day-1][position])
-
+                intent.putExtra("position",position)
                 startActivity(intent)
             }
         })
@@ -168,7 +167,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun goToCreate() {
+    fun goToCreate(view:View) {
         val intent = Intent(this@MainActivity, CreateEventActivity::class.java)
         intent.putExtra("selectedMonth","0$monthCheck")
         startActivity(intent)
@@ -183,4 +182,6 @@ class MainActivity : AppCompatActivity() {
         auth.signOut()
         // Take the user to the LoginOrRegister Activity - Gabriel
         startActivity(Intent(this, LoginOrRegisterActivity::class.java))
+    }
+
     }

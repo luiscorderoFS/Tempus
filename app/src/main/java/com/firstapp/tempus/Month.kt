@@ -28,6 +28,14 @@ class Month() {
 
         }
     }
+    fun isEmpty():Boolean{
+        for(i in 0..30){
+            if(mDays[i].isNotEmpty()){
+                return false
+            }
+        }
+        return true
+    }
     // Clear each index in mDays - Gabriel
     fun clear(){
         for(i in 0..30){

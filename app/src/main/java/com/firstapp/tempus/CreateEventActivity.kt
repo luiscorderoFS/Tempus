@@ -57,7 +57,7 @@ class CreateEventActivity : AppCompatActivity() {
         db = Firebase.firestore
 
         // create PlacesClient instance
-        val placesClient = Places.createClient(this)
+        //val placesClient = Places.createClient(this)
 
         /*// Use fields to define the data types to return.
         val placeFields: List<Place.Field> = listOf(Place.Field.LAT_LNG)
@@ -94,7 +94,7 @@ class CreateEventActivity : AppCompatActivity() {
         }*/
 
         // Get AutoComplete Fragment
-        val autoCompleteFragment = supportFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
+        /*val autoCompleteFragment = supportFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
         // Construct and set autocomplete fragment settings
         autoCompleteFragment.setTypeFilter(TypeFilter.ESTABLISHMENT)
         autoCompleteFragment.setLocationBias(
@@ -109,7 +109,7 @@ class CreateEventActivity : AppCompatActivity() {
             // Get info about selected place
             override fun onPlaceSelected(place: Place) {
                 Log.i(TAG, "Place: ${place.name}, ${place.id}")
-                /*val placeId = "ChIJI1NEW_9YwokRZJ-aFyN078Y"
+                *//*val placeId = "ChIJI1NEW_9YwokRZJ-aFyN078Y"
 
                 // Specify the fields to return.
                 val placeFields = listOf(Place.Field.NAME)
@@ -128,14 +128,14 @@ class CreateEventActivity : AppCompatActivity() {
                             val statusCode = exception.statusCode
                             TODO("Handle error with given status code")
                         }
-                    }*/
+                    }*//*
 
             }
             // Handle error
             override fun onError(status: Status) {
                 Log.i(TAG, "An error occurred: $status")
             }
-        })
+        })*/
 
         // set pointers to date and time buttons/textviews
         val createButton: Button = findViewById(R.id.create)

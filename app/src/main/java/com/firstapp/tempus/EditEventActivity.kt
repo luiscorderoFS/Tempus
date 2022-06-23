@@ -25,6 +25,7 @@ class EditEventActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
+    var position = 0
     // Variables containing the relevant fields found in the chosen document before editing.
     // Set as static values for testing. Otherwise, plug in proper values based on Main Activity recycler view - Gabriel
 //    var oldEventTitle: String = "Example"
@@ -41,6 +42,8 @@ class EditEventActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_event)
+
+        position = intent.getIntExtra("position",0)
 
         // Initialize the authentication and database variables - Gabriel
         auth = Firebase.auth
@@ -166,8 +169,11 @@ class EditEventActivity : AppCompatActivity() {
                 .addOnCompleteListener{ task ->
                     // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
                     if(task.isSuccessful){
+                        localMonth.mDays[eventObj.mDate.substring(3,5).toInt()-1].removeAt(position)
                         Toast.makeText(this, "Database path edit successful!", Toast.LENGTH_SHORT).show()
+                        localMonth.addEvent((eventObj.mDate.substring(3,5).toInt()-1),eventObj)
                         //startActivity(Intent(this, MainActivity::class.java))
+                        globalEvent = eventObj
                         finish()
                     // Otherwise, display a Toast message that the creation failed - Gabriel
                     } else {
@@ -186,6 +192,8 @@ class EditEventActivity : AppCompatActivity() {
                     // Upon a successful document path deletion, display a Toast message and change the activity - Gabriel
                     if(task.isSuccessful){
                         Toast.makeText(this, "Database path deletion successful!", Toast.LENGTH_SHORT).show()
+                        localMonth.mDays[oldEventDate.substring(3,5).toInt()-1].removeAt(position)
+
                         startActivity(Intent(this, MainActivity::class.java))
                     // Otherwise, display a Toast message that the deletion failed - Gabriel
                     } else {

@@ -34,7 +34,7 @@
 
     <CalendarView
         android:id="@+id/calendarView"
-        android:layout_width="383dp"
+        android:layout_width="0dp"
         android:layout_height="344dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
@@ -66,8 +66,8 @@
 
     <SearchView
         android:id="@+id/searchView"
-        android:layout_width="251dp"
-        android:layout_height="48dp"
+        android:layout_width="233dp"
+        android:layout_height="46dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/round_outline"
@@ -81,11 +81,11 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="344dp"
-        android:onClick="logOutAndGoToLogIn"
         android:hint="Log Out"
+        android:onClick="logOutAndGoToLogIn"
         app:icon="@drawable/ic_log_out"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/searchView"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

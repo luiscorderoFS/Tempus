@@ -33,6 +33,8 @@ class CreateEventActivity : AppCompatActivity() {
         auth = Firebase.auth
         db = Firebase.firestore
 
+        //PutExtra Extraction, MainActivity hands off the current month of the calendar
+        val selectedMonth:String = intent.getStringExtra("selectedMonth").toString()
 
         // set pointers to date and time buttons/textviews
         val createButton: Button = findViewById(R.id.create)
@@ -143,8 +145,10 @@ class CreateEventActivity : AppCompatActivity() {
                         Toast.makeText(this, "Unable to create database path. Check your inputs or try again later.", Toast.LENGTH_SHORT).show()
                     }
                 }
-
-            localMonth.addEvent(dateOfEvent.toInt()-1, eventObj)
+            //Updates the localMonth obj iff the month that was passed in from the mainActivity is the same as the user's
+            //selected date
+            if(selectedMonth == dateText.text.toString().substring(0, 2))
+                localMonth.addEvent(dateOfEvent.toInt()-1,eventObj)
         }
     }
 

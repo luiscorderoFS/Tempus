@@ -4,7 +4,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class Month(){
+class Month() {
     //var mDays = arrayOf(31,arrayListOf<Event>())//Array(arrayListOf<Event>())
     var mDays = Array(31,{arrayListOf<Event>()})
 
@@ -27,6 +27,14 @@ class Month(){
             this.addEvent(i,Event("Test 3",randy.nextInt(24).toString(),randy.nextInt().toString()))
 
         }
+    }
+    fun isEmpty():Boolean{
+        for(i in 0..30){
+            if(mDays[i].isNotEmpty()){
+                return false
+            }
+        }
+        return true
     }
     // Clear each index in mDays - Gabriel
     fun clear(){

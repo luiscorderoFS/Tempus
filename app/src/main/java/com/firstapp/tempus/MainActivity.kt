@@ -3,9 +3,9 @@ package com.firstapp.tempus
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.CalendarView
 import android.widget.TextView
+import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-
+var localMonth: Month = Month()
 class MainActivity : AppCompatActivity() {
 
     // Create the authentication variable - Gabriel
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var calText:String
     var day = calPlaceHolder.get(Calendar.DAY_OF_MONTH)
-
+    var monthCheck = calPlaceHolder.get(Calendar.MONTH)+1
     // Upon starting this screen, evaluate if the user is signed in or not - Gabriel
     override fun onStart(){
         super.onStart()
@@ -64,8 +64,8 @@ class MainActivity : AppCompatActivity() {
         //auth = Firebase.auth
         //db = Firebase.firestore
 
-        // Variable to find out what the current user's userID is, through debugging - Gabriel
-        //var test: String = auth.uid.toString()
+        // Temporary line of code to correct any issues with authenticating after logging in once (just sign the user out before anything occurs) - Gabriel
+        //auth.signOut()
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -120,7 +120,11 @@ class MainActivity : AppCompatActivity() {
             day = dayOfMonth
 
             // if check to see what month we're in
+            if(monthCheck != newMonth){
+                monthCheck = newMonth
+                initializeDatabase("0$newMonth/$dayOfMonth/$year")
 
+            }
 
             textView.text = calText
             //allows the listener to be able to dynamically change the recycle view
@@ -139,7 +143,7 @@ class MainActivity : AppCompatActivity() {
                 //Toast.makeText(this@MainActivity, "You clicked on item no. ${position+1}", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this@MainActivity,ViewEvent::class.java)
                 intent.putExtra("event", localMonth.mDays[day-1][position])
-
+                intent.putExtra("position",position)
                 startActivity(intent)
             }
         })
@@ -163,9 +167,9 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun goToCreate(view: View){
-        val intent = Intent(this, CreateEventActivity::class.java)
-        //intent.putExtra("selectedDate",calText)
+    fun goToCreate(view:View) {
+        val intent = Intent(this@MainActivity, CreateEventActivity::class.java)
+        intent.putExtra("selectedMonth","0$monthCheck")
         startActivity(intent)
 
     }
@@ -179,4 +183,5 @@ class MainActivity : AppCompatActivity() {
         // Take the user to the LoginOrRegister Activity - Gabriel
         startActivity(Intent(this, LoginOrRegisterActivity::class.java))
     }
-}
+
+    }

@@ -175,10 +175,10 @@ class EditEventActivity : AppCompatActivity() {
                         localMonth.mDays[eventObj.mDate.substring(3,5).toInt()-1].removeAt(position)
                         Toast.makeText(this, "Database path edit successful!", Toast.LENGTH_SHORT).show()
                         localMonth.addEvent((eventObj.mDate.substring(3,5).toInt()-1),eventObj)
-                        // Schedule Notification
+                        // If time is set to the future, schedule notification and write event to "All Events" document
                         if (timeInMillis > Calendar.getInstance().timeInMillis) {
-                            Notifications.create()
-                                .scheduleNotification(applicationContext, eventObj)
+                            Notifications.create().scheduleNotification(applicationContext, eventObj)
+                            db.collection("Users").document(auth.uid.toString()).collection("All Events").document().set(eventObj)
                         }
                         // Set data to "All Events" document for later use for notifications
                         db.collection("Users").document(auth.uid.toString()).collection("All Events").document().set(eventObj)

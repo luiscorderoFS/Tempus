@@ -83,8 +83,12 @@ class MainActivity : AppCompatActivity() {
                 // For each document, if notification time is in the future, set notification
                 for (document in result) {
                     val eventObj = document.toObject<Event>()
-                    if (eventObj.mTimeInMillis >= Calendar.getInstance().timeInMillis)
+                    if (eventObj.mTimeInMillis > Calendar.getInstance().timeInMillis)
                         Notifications.create().scheduleNotification(this, eventObj)
+                    else {
+                        // Delete the document as it is not needed to check for notifications anymore
+                        db.collection("Users").document(auth.uid.toString()).collection("All Events").document(eventObj.mDocID).delete()
+                    }
                 }
             }
 

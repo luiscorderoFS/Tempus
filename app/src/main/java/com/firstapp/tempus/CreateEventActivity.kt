@@ -6,10 +6,7 @@ import android.content.pm.PackageManager
 import android.location.Address
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.gms.common.api.ApiException
@@ -39,6 +36,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.Collections.list
 
 class CreateEventActivity : AppCompatActivity() {
 
@@ -100,6 +98,13 @@ class CreateEventActivity : AppCompatActivity() {
                 //Log.i(TAG, "An error occurred: $status")
             }
         })
+
+        // Dropdown for alert options
+        val autoComplete: AutoCompleteTextView = findViewById(R.id.alert_autocomplete)
+        val items = resources.getStringArray(R.array.alert_times)
+        val adapter = ArrayAdapter(this, R.layout.list_item, items)
+        autoComplete.setAdapter(adapter)
+
         dateButton.setOnClickListener{
 
             // create and show datepicker

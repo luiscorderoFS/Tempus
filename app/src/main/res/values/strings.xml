@@ -9,4 +9,13 @@
     <string name="date">Set Date</string>
     <string name="create_event">Create Event</string>
     <string name="send_date">+</string>
+    <string-array name="alert_times">
+        <item>At time of event</item>
+        <item>5 minutes before event</item>
+        <item>15 minutes before event</item>
+        <item>30 minutes before event</item>
+        <item>1 hour before event</item>
+        <item>2 hours before event</item>
+        <item>1 day before event</item>
+    </string-array>
 </resources>

@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import java.util.*
 
 val CHANNEL_ID = "channelID"
@@ -22,7 +23,7 @@ class Notifications {
         fun create(): Notifications = Notifications()
     }
     // Schedule Notification
-    fun scheduleNotification(context: Context, eventObj: Event) {
+    fun scheduleNotification(context: Context, eventObj: Event, cancel: Boolean = false) {
         // Create receiver for when app is killed
         val receiver = ComponentName(context, AlarmReceiver::class.java)
         context.packageManager.setComponentEnabledSetting(
@@ -38,17 +39,44 @@ class Notifications {
             context,
             eventObj.mNumID.toInt(),
             intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT// or PendingIntent.FLAG_NO_CREATE
         )
         // Create AlarmManager
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         // Set alarm
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                eventObj.mTimeInMillis,
-                pendingIntent
-            )
+        if (!cancel) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    eventObj.mTimeInMillis,
+                    pendingIntent
+                )
+            }
+        }
+        else {
+            alarmManager.cancel(pendingIntent)
+            Log.v("log", "cancelled")
+        }
+    }
+    // Cancel Notification
+    fun cancelNotification(context: Context, eventObj: Event) {
+        // Create AlarmManager
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        // Create intent to AlarmReceiver class
+        val intent = Intent(context, AlarmReceiver::class.java)
+        intent.putExtra(NOTIFICATION_TITLE, eventObj.mTitle)
+        intent.putExtra(NOTIFICATION_ID, eventObj.mNumID.toInt())
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            eventObj.mNumID.toInt(),
+            intent,
+            PendingIntent.FLAG_NO_CREATE
+        )
+        Log.v("log", "is it null? (cancel) " + (pendingIntent == null).toString())
+        // Cancel notification
+        if (pendingIntent != null) {
+            alarmManager.cancel(pendingIntent)
+            Log.v("log", "cancelled")
         }
     }
     // Create Notification Channel

@@ -28,6 +28,10 @@ class AlarmReceiver : BroadcastReceiver() {
                         val eventObj = document.toObject<Event>()
                         if (eventObj.mTimeInMillis >= Calendar.getInstance().timeInMillis)
                             Notifications.create().scheduleNotification(context, eventObj)
+                        else {
+                            // Delete the document as it is not needed to check for notifications anymore
+                            db.collection("Users").document(auth.uid.toString()).collection("All Events").document(document.id).delete()
+                        }
                     }
                 }
         }

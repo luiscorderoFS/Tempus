@@ -2,6 +2,7 @@ package com.firstapp.tempus
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -15,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.*
@@ -175,13 +177,23 @@ class EditEventActivity : AppCompatActivity() {
                         localMonth.mDays[eventObj.mDate.substring(3,5).toInt()-1].removeAt(position)
                         Toast.makeText(this, "Database path edit successful!", Toast.LENGTH_SHORT).show()
                         localMonth.addEvent((eventObj.mDate.substring(3,5).toInt()-1),eventObj)
-                        // If time is set to the future, schedule notification and write event to "All Events" document
+                        // If time is set to the future, schedule notification and write event to "All Events" collection
                         if (timeInMillis > Calendar.getInstance().timeInMillis) {
                             Notifications.create().scheduleNotification(applicationContext, eventObj)
                             db.collection("Users").document(auth.uid.toString()).collection("All Events").document().set(eventObj)
                         }
-                        // Set data to "All Events" document for later use for notifications
-                        db.collection("Users").document(auth.uid.toString()).collection("All Events").document().set(eventObj)
+                        // if not, data is no longer needed in "All Events" and is deleted
+                        else {
+                            db.collection("Users").document(auth.uid.toString()).collection("All Events").get()
+                                .addOnSuccessListener { result ->
+                                    for (document in result) {
+                                        val eventObj = document.toObject<Event>()
+                                        if (eventObj.mNumID == oldNumID)
+                                            db.collection("Users").document(auth.uid.toString())
+                                                .collection("All Events").document(document.id).delete()
+                                    }
+                                }
+                        }
                         //startActivity(Intent(this, MainActivity::class.java))
                         globalEvent = eventObj
                         finish()
@@ -196,6 +208,10 @@ class EditEventActivity : AppCompatActivity() {
             // Delete the document using the old data fields.
             // Note: there is an unusual bug right now where the program will crash upon attempting to delete
             //       a document that was made during the same run time. OldDocID ends up empty, for some reason - Gabriel
+            // Create the event object (copied from createButton listener, also needed to cancel notification)
+            var eventTitle: String = findViewById<EditText>(R.id.title_text).text.toString()
+            var eventLocation: String = findViewById<EditText>(R.id.location_text).text.toString()
+            val eventObj = Event(eventTitle, timeText.text.toString(), eventLocation, dateText.text.toString(), timeInMillis, oldNumID, auth.uid.toString(), oldDocID)
             db.collection("Users").document(auth.uid.toString()).collection(oldEventDate.substring(6))
                 .document(oldEventDate.substring(0, 2)).collection("Events").document(oldDocID).delete()
                 .addOnCompleteListener{ task ->
@@ -203,7 +219,19 @@ class EditEventActivity : AppCompatActivity() {
                     if(task.isSuccessful){
                         Toast.makeText(this, "Database path deletion successful!", Toast.LENGTH_SHORT).show()
                         localMonth.mDays[oldEventDate.substring(3,5).toInt()-1].removeAt(position)
-
+                        // Cancel notification
+                        Notifications.create().scheduleNotification(applicationContext, eventObj, true)
+                        // Delete document from "All Events"
+                        db.collection("Users").document(auth.uid.toString()).collection("All Events").get()
+                            .addOnSuccessListener { result ->
+                                for (document in result) {
+                                    val eventObj = document.toObject<Event>()
+                                    if (eventObj.mNumID == oldNumID)
+                                        db.collection("Users").document(auth.uid.toString())
+                                            .collection("All Events").document(document.id).delete()
+                                }
+                            }
+                        //Log.v("log", "id: ${databasePathAllEvents.id}, title: ${eventTitle}")
                         startActivity(Intent(this, MainActivity::class.java))
                     // Otherwise, display a Toast message that the deletion failed - Gabriel
                     } else {

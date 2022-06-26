@@ -4,11 +4,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.common.api.Status
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.RectangularBounds
+import com.google.android.libraries.places.api.model.TypeFilter
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -85,7 +89,7 @@ class EditEventActivity : AppCompatActivity() {
 
         // Set the text of the Title and Location Edit Text boxes to their relevant values, found in the old info variables - Gabriel
         findViewById<EditText>(R.id.title_text).setText(oldEventTitle)
-        findViewById<EditText>(R.id.location_text).setText(oldEventLocation)
+        //findViewById<EditText>(R.id.location_text).setText(oldEventLocation)
 
         // set pointers to date and time buttons/textviews
         val editButton: Button = findViewById(R.id.edit)
@@ -95,6 +99,8 @@ class EditEventActivity : AppCompatActivity() {
         val timeText: TextView = findViewById(R.id.time_text)
         val deleteButton: Button = findViewById(R.id.delete)
 
+        var location: String = oldEventLocation
+
         // Rather than initialize the date in the date picker fragment to the current date, set it to the original date, found in the document to be "edited" - Gabriel
         var date = calendar.timeInMillis - 86400000
         // Initialize the dateDummy variable with the value of date, to smooth things over when being used by others - Gabriel
@@ -102,8 +108,40 @@ class EditEventActivity : AppCompatActivity() {
         var hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         var minute = Calendar.getInstance().get(Calendar.MINUTE)
         var timeInMillis = date + (hour * 3600000) + (minute * 60000) + 14400000
+        var timeOffset: Long = 0
         // set date and time views to current time
         setText()
+
+        // AutoComplete Fragment
+        val autoCompleteFragment = supportFragmentManager.findFragmentById(R.id.location) as AutocompleteSupportFragment
+        // Construct and set autocomplete fragment settings
+        autoCompleteFragment.setTypeFilter(TypeFilter.ESTABLISHMENT)
+        autoCompleteFragment.setLocationBias(
+            RectangularBounds.newInstance(
+                LatLng(28.6000, -81.3392), LatLng(28.6000, -81.3392)
+            ))
+        autoCompleteFragment.setCountries("US")
+        autoCompleteFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME))
+        autoCompleteFragment.setHint("Location")
+        autoCompleteFragment.setText(oldEventLocation)
+        // Autocomplete fragment listener
+        autoCompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            // Get info about selected place
+            override fun onPlaceSelected(place: Place) {
+                //Log.i(TAG, "Place: ${place.name}, ${place.id}")
+                location = place.name
+            }
+            // Handle error
+            override fun onError(status: Status) {
+                //Log.i(TAG, "An error occurred: $status")
+            }
+        })
+
+        // Dropdown for alert options
+        val autoComplete: AutoCompleteTextView = findViewById(R.id.alert_autocomplete)
+        val items = resources.getStringArray(R.array.alert_times)
+        val adapter = ArrayAdapter(this, R.layout.list_item, items)
+        autoComplete.setAdapter(adapter)
 
         dateButton.setOnClickListener{
 
@@ -156,7 +194,7 @@ class EditEventActivity : AppCompatActivity() {
             // Variables that represent the event title and location edit text fields.
             // Note: These variables must be declared here to ensure they grab the proper string values - Gabriel
             var eventTitle: String = findViewById<EditText>(R.id.title_text).text.toString()
-            var eventLocation: String = findViewById<EditText>(R.id.location_text).text.toString()
+            //var eventLocation: String = findViewById<EditText>(R.id.location_text).text.toString()
 
             // Delete the old document that is being "edited" using the old info variables for pathing - Gabriel
             db.collection("Users").document(auth.uid.toString()).collection(oldEventDate.substring(6))
@@ -166,8 +204,19 @@ class EditEventActivity : AppCompatActivity() {
             var databasePath = db.collection("Users").document(auth.uid.toString()).collection(dateText.text.toString().substring(6))
                 .document(dateText.text.toString().substring(0, 2)).collection("Events").document(oldDocID)
 
+            // set timeOffset based off alert options selection
+            timeOffset = when (autoComplete.text.toString()) {
+                items[1] -> 300000
+                items[2] -> 900000
+                items[3] -> 1800000
+                items[4] -> 3600000
+                items[5] -> 86400000
+                else -> 0
+            }
+            timeInMillis -= timeOffset
+
             // Create the event object, which will take the place of the hash map - Gabriel
-            val eventObj = Event(eventTitle, timeText.text.toString(), eventLocation, dateText.text.toString(), timeInMillis, oldNumID, auth.uid.toString(), oldDocID)
+            val eventObj = Event(eventTitle, timeText.text.toString(), location, dateText.text.toString(), timeInMillis, oldNumID, auth.uid.toString(), oldDocID)
 
             // Set the data in the relevant database path using the event object - Gabriel
             databasePath.set(eventObj)
@@ -210,8 +259,8 @@ class EditEventActivity : AppCompatActivity() {
             //       a document that was made during the same run time. OldDocID ends up empty, for some reason - Gabriel
             // Create the event object (copied from createButton listener, also needed to cancel notification)
             var eventTitle: String = findViewById<EditText>(R.id.title_text).text.toString()
-            var eventLocation: String = findViewById<EditText>(R.id.location_text).text.toString()
-            val eventObj = Event(eventTitle, timeText.text.toString(), eventLocation, dateText.text.toString(), timeInMillis, oldNumID, auth.uid.toString(), oldDocID)
+            //var eventLocation: String = findViewById<EditText>(R.id.location_text).text.toString()
+            val eventObj = Event(eventTitle, timeText.text.toString(), location, dateText.text.toString(), timeInMillis, oldNumID, auth.uid.toString(), oldDocID)
             db.collection("Users").document(auth.uid.toString()).collection(oldEventDate.substring(6))
                 .document(oldEventDate.substring(0, 2)).collection("Events").document(oldDocID).delete()
                 .addOnCompleteListener{ task ->

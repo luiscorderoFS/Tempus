@@ -55,28 +55,6 @@ class Notifications {
         }
         else {
             alarmManager.cancel(pendingIntent)
-            Log.v("log", "cancelled")
-        }
-    }
-    // Cancel Notification
-    fun cancelNotification(context: Context, eventObj: Event) {
-        // Create AlarmManager
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        // Create intent to AlarmReceiver class
-        val intent = Intent(context, AlarmReceiver::class.java)
-        intent.putExtra(NOTIFICATION_TITLE, eventObj.mTitle)
-        intent.putExtra(NOTIFICATION_ID, eventObj.mNumID.toInt())
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            eventObj.mNumID.toInt(),
-            intent,
-            PendingIntent.FLAG_NO_CREATE
-        )
-        Log.v("log", "is it null? (cancel) " + (pendingIntent == null).toString())
-        // Cancel notification
-        if (pendingIntent != null) {
-            alarmManager.cancel(pendingIntent)
-            Log.v("log", "cancelled")
         }
     }
     // Create Notification Channel

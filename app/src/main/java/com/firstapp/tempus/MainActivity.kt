@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.CalendarView
 import android.widget.TextView
 import android.view.View
@@ -35,19 +36,20 @@ class MainActivity : AppCompatActivity() {
 
     private var layoutManager: RecyclerView.LayoutManager? = null
     private lateinit var adapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>
-    private lateinit var recyclerEvent : RecyclerView
+    private lateinit var recyclerEvent: RecyclerView
     val calPlaceHolder = Calendar.getInstance()
 
-    private lateinit var calText:String
+    private lateinit var calText: String
     var day = calPlaceHolder.get(Calendar.DAY_OF_MONTH)
-    var monthCheck = calPlaceHolder.get(Calendar.MONTH)+1
+    var monthCheck = calPlaceHolder.get(Calendar.MONTH) + 1
+
     // Upon starting this screen, evaluate if the user is signed in or not - Gabriel
-    override fun onStart(){
+    override fun onStart() {
         super.onStart()
         // Create notification channel on startup
         Notifications.create().createNotificationChannel(this)
         // If not, got to the login/register screen - Gabriel
-        if(auth.currentUser == null){
+        if (auth.currentUser == null) {
             startActivity(Intent(this, LoginOrRegisterActivity::class.java))
         }
 
@@ -57,7 +59,6 @@ class MainActivity : AppCompatActivity() {
         recyclerEvent.layoutManager = layoutManager
         (adapter as RecyclerAdapter).changeDate(day)
         recyclerEvent.adapter = adapter
-
 
 
         //Formatting of the recyclerView
@@ -125,15 +126,14 @@ class MainActivity : AppCompatActivity() {
         //endregion
 
 
-
         //region listener that checks when the date changes, allows the text box to show the selected day
-        calendarView.setOnDateChangeListener{view,year,month,dayOfMonth ->
+        calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
             val newMonth = month + 1
             calText = "0$newMonth/$dayOfMonth/$year"
             day = dayOfMonth
 
             // if check to see what month we're in
-            if(monthCheck != newMonth){
+            if (monthCheck != newMonth) {
                 monthCheck = newMonth
                 initializeDatabase("0$newMonth/$dayOfMonth/$year")
 
@@ -150,20 +150,21 @@ class MainActivity : AppCompatActivity() {
 
         //region A listener that allows the user to click on an Event from the view, and
         //brings up it's full view
-        (adapter as RecyclerAdapter).setOnItemClickListener(object: RecyclerAdapter.onItemClickListener{
-            override fun onItemClick(position:Int){
+        (adapter as RecyclerAdapter).setOnItemClickListener(object :
+            RecyclerAdapter.onItemClickListener {
+            override fun onItemClick(position: Int) {
 
                 //Toast.makeText(this@MainActivity, "You clicked on item no. ${position+1}", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this@MainActivity,ViewEvent::class.java)
-                intent.putExtra("event", localMonth.mDays[day-1][position])
-                intent.putExtra("position",position)
+                val intent = Intent(this@MainActivity, ViewEvent::class.java)
+                intent.putExtra("event", localMonth.mDays[day - 1][position])
+                intent.putExtra("position", position)
                 startActivity(intent)
             }
         })
         //endregion
     }
 
-    private fun initializeDatabase(currentDate: String){
+    private fun initializeDatabase(currentDate: String) {
         db.collection("Users").document(auth.uid.toString()).collection(currentDate.substring(6))
             .document(currentDate.substring(0, 2)).collection("Events")
             .get()
@@ -180,15 +181,25 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun goToCreate(view:View) {
+    fun goToCreate(view: View) {
         val intent = Intent(this@MainActivity, CreateEventActivity::class.java)
-        intent.putExtra("selectedMonth","0$monthCheck")
+        intent.putExtra("selectedMonth", "0$monthCheck")
         startActivity(intent)
 
     }
 
     // Method used to log out of the application by the Logout Button - Gabriel
-    fun logOutAndGoToLogIn(view:View){
+    fun logOutAndGoToLogIn(view: View) {
+        // Clear notifications
+        db.collection("Users").document(auth.uid.toString()).collection("All Events")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val eventObj = document.toObject<Event>()
+                    Notifications.create().scheduleNotification(applicationContext, eventObj, true)
+                }
+            }
+        TimeUnit.SECONDS.sleep(1L)
         // Clear the current month array - Gabriel
         localMonth.clear()
         // Sign out of the application - Gabriel
@@ -196,5 +207,4 @@ class MainActivity : AppCompatActivity() {
         // Take the user to the LoginOrRegister Activity - Gabriel
         startActivity(Intent(this, LoginOrRegisterActivity::class.java))
     }
-
-    }
+}

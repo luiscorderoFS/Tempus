@@ -1,5 +1,6 @@
 package com.firstapp.tempus
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Address
@@ -56,94 +57,14 @@ class CreateEventActivity : AppCompatActivity() {
         //PutExtra Extraction, MainActivity hands off the current month of the calendar
         val selectedMonth:String = intent.getStringExtra("selectedMonth").toString()
 
-        // Thomas' autofill stuff:
-        // create PlacesClient instance
-        //val placesClient = Places.createClient(this)
-
-        /*// Use fields to define the data types to return.
-        val placeFields: List<Place.Field> = listOf(Place.Field.LAT_LNG)
-
-        // Use the builder to create a FindCurrentPlaceRequest.
-        val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
-
-        // Call findCurrentPlace and handle the response (first check that the user has granted permission).
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
-            PackageManager.PERMISSION_GRANTED) {
-
-            val placeResponse = placesClient.findCurrentPlace(request)
-            placeResponse.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val response = task.result
-                    for (placeLikelihood: PlaceLikelihood in response?.placeLikelihoods
-                        ?: emptyList()) {
-                        Log.i(
-                            TAG,
-                            "Place '${placeLikelihood.place.name}' has likelihood: ${placeLikelihood.likelihood}"
-                        )
-                    }
-                } else {
-                    val exception = task.exception
-                    if (exception is ApiException) {
-                        Log.e(TAG, "Place not found: ${exception.statusCode}")
-                    }
-                }
-            }
-        } else {
-            // A local method to request required permissions;
-            // See https://developer.android.com/training/permissions/requesting
-            getLocationPermission()
-        }*/
-
-        // Get AutoComplete Fragment
-        /*val autoCompleteFragment = supportFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
-        // Construct and set autocomplete fragment settings
-        autoCompleteFragment.setTypeFilter(TypeFilter.ESTABLISHMENT)
-        autoCompleteFragment.setLocationBias(
-            RectangularBounds.newInstance(
-            LatLng(-33.880490, 151.184363),
-            LatLng(-33.858754, 151.229596)))
-        autoCompleteFragment.setCountries("US")
-        autoCompleteFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME))
-        autoCompleteFragment.setHint("Location")
-        // Autocomplete fragment listener
-        autoCompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
-            // Get info about selected place
-            override fun onPlaceSelected(place: Place) {
-                Log.i(TAG, "Place: ${place.name}, ${place.id}")
-                *//*val placeId = "ChIJI1NEW_9YwokRZJ-aFyN078Y"
-
-                // Specify the fields to return.
-                val placeFields = listOf(Place.Field.NAME)
-
-                // Construct a request object, passing the place ID and fields array.
-                val request = FetchPlaceRequest.newInstance(placeId, placeFields)
-
-                placesClient.fetchPlace(request)
-                    .addOnSuccessListener { response: FetchPlaceResponse ->
-                        val places = response.place
-                        Log.i("Place found ", places.name)
-                        autoCompleteFragment.setText(places.name)
-                    }.addOnFailureListener { exception: Exception ->
-                        if (exception is ApiException) {
-                            Log.e(TAG, "Place not found: ${exception.message}")
-                            val statusCode = exception.statusCode
-                            TODO("Handle error with given status code")
-                        }
-                    }*//*
-
-            }
-            // Handle error
-            override fun onError(status: Status) {
-                Log.i(TAG, "An error occurred: $status")
-            }
-        })*/
-
         // set pointers to date and time buttons/textviews
         val createButton: Button = findViewById(R.id.create)
         val dateButton: Button = findViewById(R.id.date)
         val timeButton: Button = findViewById(R.id.start_time)
         val dateText: TextView = findViewById(R.id.date_text)
         val timeText: TextView = findViewById(R.id.time_text)
+
+        var location: String = ""
 
         var date = MaterialDatePicker.todayInUtcMilliseconds()
         // Initialize the dateDummy variable with the value of date, to smooth things over when being used by others - Gabriel
@@ -154,6 +75,31 @@ class CreateEventActivity : AppCompatActivity() {
         // set date and time views to current time
         setText()
 
+        // create PlacesClient instance
+        //val placesClient = Places.createClient(this)
+
+        // AutoComplete Fragment
+        val autoCompleteFragment = supportFragmentManager.findFragmentById(R.id.location) as AutocompleteSupportFragment
+        // Construct and set autocomplete fragment settings
+        autoCompleteFragment.setTypeFilter(TypeFilter.ESTABLISHMENT)
+        autoCompleteFragment.setLocationBias(
+            RectangularBounds.newInstance(
+                LatLng(28.6000, -81.3392), LatLng(28.6000, -81.3392)))
+        autoCompleteFragment.setCountries("US")
+        autoCompleteFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME))
+        autoCompleteFragment.setHint("Location")
+        // Autocomplete fragment listener
+        autoCompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            // Get info about selected place
+            override fun onPlaceSelected(place: Place) {
+                //Log.i(TAG, "Place: ${place.name}, ${place.id}")
+                location = place.name
+            }
+            // Handle error
+            override fun onError(status: Status) {
+                //Log.i(TAG, "An error occurred: $status")
+            }
+        })
         dateButton.setOnClickListener{
 
             // create and show datepicker
@@ -205,7 +151,7 @@ class CreateEventActivity : AppCompatActivity() {
             // Variables that represent the event title and location edit text fields.
             // Note: These variables must be declared here to ensure they grab the proper string values - Gabriel
             var eventTitle: String = findViewById<EditText>(R.id.title_text).text.toString()
-            var eventLocation: String = findViewById<EditText>(R.id.location_text).text.toString()
+            //var eventLocation: String = findViewById<EditText>(R.id.location_text).text.toString()
 
             val dateOfEvent:String = dateText.text.toString().substring(3, 5)
 
@@ -235,7 +181,7 @@ class CreateEventActivity : AppCompatActivity() {
             databasePathID = databasePathID.substring(0,9)
 
             // Create the event object, which will take the place of the hash map - Gabriel
-            val eventObj = Event(eventTitle, timeText.text.toString(), eventLocation, dateText.text.toString(), timeInMillis, databasePathID, auth.uid.toString(), databasePath.id.toString())
+            val eventObj = Event(eventTitle, timeText.text.toString(), location, dateText.text.toString(), timeInMillis, databasePathID, auth.uid.toString(), databasePath.id.toString())
 
             // Set the data in the relevant database path using the event object - Gabriel
             databasePath.set(eventObj)

@@ -11,6 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
+import java.text.SimpleDateFormat
 import java.util.*
 
 class AlarmReceiver : BroadcastReceiver() {
@@ -38,6 +39,16 @@ class AlarmReceiver : BroadcastReceiver() {
         else {
             val title = intent.getStringExtra(NOTIFICATION_TITLE)
             val notificationID = intent.getIntExtra(NOTIFICATION_ID, 0)
+            val location = intent.getStringExtra(NOTIFICATION_LOCATION)
+            val time = intent.getLongExtra(NOTIFICATION_TIME, 0)
+            var format = ""
+            val simpleDateFormat = SimpleDateFormat("h:mm a")
+            if (location == "") {
+                format = "At ${simpleDateFormat.format(time)}"
+            }
+            else {
+                format = "At $location at ${simpleDateFormat.format(time)}"
+            }
             // create explicit intent of main activity
             val mainIntent = Intent(context, MainActivity::class.java)
             //  create pending intent
@@ -50,7 +61,7 @@ class AlarmReceiver : BroadcastReceiver() {
             // create notification
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setContentTitle(title)
-                .setContentText("this is the content text")
+                .setContentText(format)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setContentIntent(pendingIntent)

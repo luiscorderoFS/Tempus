@@ -19,7 +19,7 @@ class Month() {
         mDays[date].sort()
     }
 
-    fun randomize(){
+    /*fun randomize(){
         var randy = Random()
         for (i in 0..30){
             this.addEvent(i,Event("Test 1",randy.nextInt(24).toString(),randy.nextInt().toString()))
@@ -27,7 +27,7 @@ class Month() {
             this.addEvent(i,Event("Test 3",randy.nextInt(24).toString(),randy.nextInt().toString()))
 
         }
-    }
+    }*/
     fun isEmpty():Boolean{
         for(i in 0..30){
             if(mDays[i].isNotEmpty()){

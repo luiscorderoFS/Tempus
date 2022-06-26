@@ -16,5 +16,6 @@
         <item>30 minutes before event</item>
         <item>1 hour before event</item>
         <item>1 day before event</item>
+        <item>Travel time</item>
     </string-array>
 </resources>

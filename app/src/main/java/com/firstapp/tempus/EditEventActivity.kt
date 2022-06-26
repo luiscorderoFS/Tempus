@@ -2,8 +2,6 @@ package com.firstapp.tempus
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.common.api.Status
@@ -24,6 +22,8 @@ import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class EditEventActivity : AppCompatActivity() {
 
@@ -61,7 +61,8 @@ class EditEventActivity : AppCompatActivity() {
 
         // Assign the event object's variables to specific variables - Gabriel
         var oldEventTitle = oldEvent.mTitle
-        var oldEventLocation = oldEvent.mLocation
+        var oldStartEventLocation = oldEvent.mStartLocation
+        var oldEndEventLocation = oldEvent.mEndLocation
         var oldEventDate = oldEvent.mDate
         var oldEventTime = oldEvent.mTime
         var oldNumID = oldEvent.mNumID
@@ -99,7 +100,10 @@ class EditEventActivity : AppCompatActivity() {
         val timeText: TextView = findViewById(R.id.time_text)
         val deleteButton: Button = findViewById(R.id.delete)
 
-        var location: String = oldEventLocation
+        var startLocationName: String = oldStartEventLocation
+        var startLocationID: String = ""
+        var endLocationName: String = oldEndEventLocation
+        var endLocationID: String = ""
 
         // Rather than initialize the date in the date picker fragment to the current date, set it to the original date, found in the document to be "edited" - Gabriel
         var date = calendar.timeInMillis - 86400000
@@ -113,23 +117,50 @@ class EditEventActivity : AppCompatActivity() {
         setText()
 
         // AutoComplete Fragment
-        val autoCompleteFragment = supportFragmentManager.findFragmentById(R.id.location) as AutocompleteSupportFragment
+        val startLocationFragment = supportFragmentManager.findFragmentById(R.id.start_location) as AutocompleteSupportFragment
         // Construct and set autocomplete fragment settings
-        autoCompleteFragment.setTypeFilter(TypeFilter.ESTABLISHMENT)
-        autoCompleteFragment.setLocationBias(
+        startLocationFragment.setTypeFilter(TypeFilter.ESTABLISHMENT)
+        startLocationFragment.setLocationBias(
             RectangularBounds.newInstance(
                 LatLng(28.6000, -81.3392), LatLng(28.6000, -81.3392)
             ))
-        autoCompleteFragment.setCountries("US")
-        autoCompleteFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME))
-        autoCompleteFragment.setHint("Location")
-        autoCompleteFragment.setText(oldEventLocation)
+        startLocationFragment.setCountries("US")
+        startLocationFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME))
+        startLocationFragment.setHint("Start Location")
+        startLocationFragment.setText(startLocationName)
         // Autocomplete fragment listener
-        autoCompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+        startLocationFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             // Get info about selected place
             override fun onPlaceSelected(place: Place) {
                 //Log.i(TAG, "Place: ${place.name}, ${place.id}")
-                location = place.name
+                startLocationName = place.name
+                startLocationID = place.id
+            }
+            // Handle error
+            override fun onError(status: Status) {
+                //Log.i(TAG, "An error occurred: $status")
+            }
+        })
+
+        // AutoComplete Fragment
+        val endLocationFragment = supportFragmentManager.findFragmentById(R.id.end_location) as AutocompleteSupportFragment
+        // Construct and set autocomplete fragment settings
+        endLocationFragment.setTypeFilter(TypeFilter.ESTABLISHMENT)
+        endLocationFragment.setLocationBias(
+            RectangularBounds.newInstance(
+                LatLng(28.6000, -81.3392), LatLng(28.6000, -81.3392)
+            ))
+        endLocationFragment.setCountries("US")
+        endLocationFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME))
+        endLocationFragment.setHint("Event Location")
+        endLocationFragment.setText(endLocationName)
+        // Autocomplete fragment listener
+        endLocationFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            // Get info about selected place
+            override fun onPlaceSelected(place: Place) {
+                //Log.i(TAG, "Place: ${place.name}, ${place.id}")
+                endLocationName = place.name
+                endLocationID = place.id
             }
             // Handle error
             override fun onError(status: Status) {
@@ -211,12 +242,13 @@ class EditEventActivity : AppCompatActivity() {
                 items[3] -> 1800000
                 items[4] -> 3600000
                 items[5] -> 86400000
+                items[6] -> calculateTravelTime(startLocationID, endLocationID)
                 else -> 0
             }
             timeInMillis -= timeOffset
 
             // Create the event object, which will take the place of the hash map - Gabriel
-            val eventObj = Event(eventTitle, timeText.text.toString(), location, dateText.text.toString(), timeInMillis, oldNumID, auth.uid.toString(), oldDocID)
+            val eventObj = Event(eventTitle, timeText.text.toString(), startLocationName, endLocationName, dateText.text.toString(), timeInMillis, oldNumID, auth.uid.toString(), oldDocID)
 
             // Set the data in the relevant database path using the event object - Gabriel
             databasePath.set(eventObj)
@@ -260,7 +292,7 @@ class EditEventActivity : AppCompatActivity() {
             // Create the event object (copied from createButton listener, also needed to cancel notification)
             var eventTitle: String = findViewById<EditText>(R.id.title_text).text.toString()
             //var eventLocation: String = findViewById<EditText>(R.id.location_text).text.toString()
-            val eventObj = Event(eventTitle, timeText.text.toString(), location, dateText.text.toString(), timeInMillis, oldNumID, auth.uid.toString(), oldDocID)
+            val eventObj = Event(eventTitle, timeText.text.toString(), startLocationName, endLocationName, dateText.text.toString(), timeInMillis, oldNumID, auth.uid.toString(), oldDocID)
             db.collection("Users").document(auth.uid.toString()).collection(oldEventDate.substring(6))
                 .document(oldEventDate.substring(0, 2)).collection("Events").document(oldDocID).delete()
                 .addOnCompleteListener{ task ->
@@ -310,6 +342,20 @@ class EditEventActivity : AppCompatActivity() {
         // Then, the displayed text for the time picker fragment is set to this value upon creation - Gabriel
         format = simpleDateFormat.format(calendar.timeInMillis)
         timeText.text = format
+    }
+
+    private fun calculateTravelTime(startLocationID: String, endLocationID: String): Long {
+        val url = "https://maps.googleapis.com/maps/api/distancematrix/json" +
+                "?origins=place_id:" + startLocationID +
+                "&destinations=place_id:" + endLocationID +
+                "&units=imperial" +
+                "&key=" + BuildConfig.MAPS_API_KEY
+        val task = RunTask(url)
+        val service = Executors.newSingleThreadExecutor()
+        service.execute(task)
+        TimeUnit.SECONDS.sleep(1)
+        val result = task.result
+        return result.toLong() * 1000
     }
 }
 

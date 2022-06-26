@@ -25,7 +25,7 @@ class ViewEvent : AppCompatActivity(), Serializable {
         globalEvent = event
         title.text = event.mTitle
         start.text = event.mTime
-        location.text = event.mLocation
+        location.text = event.mStartLocation
         desc.text = event.mDesc
 
     }
@@ -39,7 +39,7 @@ class ViewEvent : AppCompatActivity(), Serializable {
         if(globalEvent != event){
             title.text = globalEvent.mTitle
             start.text = globalEvent.mTime
-            location.text = globalEvent.mLocation
+            location.text = globalEvent.mStartLocation
             desc.text = globalEvent.mDesc
         }
 

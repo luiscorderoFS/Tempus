@@ -38,7 +38,7 @@ class Notifications {
         val intent = Intent(context, AlarmReceiver::class.java)
         intent.putExtra(NOTIFICATION_TITLE, eventObj.mTitle)
         intent.putExtra(NOTIFICATION_ID, eventObj.mNumID.toInt())
-        intent.putExtra(NOTIFICATION_LOCATION, eventObj.mLocation)
+        intent.putExtra(NOTIFICATION_LOCATION, eventObj.mStartLocation)
         intent.putExtra(NOTIFICATION_DATE, eventObj.mDate)
         intent.putExtra(NOTIFICATION_TIME, eventObj.mTime)
 

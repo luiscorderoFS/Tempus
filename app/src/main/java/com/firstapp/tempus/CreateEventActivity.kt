@@ -1,34 +1,19 @@
 package com.firstapp.tempus
 
-import android.content.ContentValues.TAG
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.Address
 import android.os.Bundle
-import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.api.model.PlaceLikelihood
 import com.google.android.libraries.places.api.model.RectangularBounds
 import com.google.android.libraries.places.api.model.TypeFilter
-import com.google.android.libraries.places.api.net.FetchPlaceRequest
-import com.google.android.libraries.places.api.net.FetchPlaceResponse
-import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
-import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import com.firstapp.tempus.BuildConfig.MAPS_API_KEY
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -36,7 +21,8 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.Collections.list
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class CreateEventActivity : AppCompatActivity() {
 
@@ -62,7 +48,10 @@ class CreateEventActivity : AppCompatActivity() {
         val dateText: TextView = findViewById(R.id.date_text)
         val timeText: TextView = findViewById(R.id.time_text)
 
-        var location: String = ""
+        var startLocationName: String = ""
+        var startLocationID: String = ""
+        var endLocationName: String = ""
+        var endLocationID: String = ""
 
         var date = MaterialDatePicker.todayInUtcMilliseconds()
         // Initialize the dateDummy variable with the value of date, to smooth things over when being used by others - Gabriel
@@ -78,21 +67,46 @@ class CreateEventActivity : AppCompatActivity() {
         //val placesClient = Places.createClient(this)
 
         // AutoComplete Fragment
-        val autoCompleteFragment = supportFragmentManager.findFragmentById(R.id.location) as AutocompleteSupportFragment
+        val startLocationFragment = supportFragmentManager.findFragmentById(R.id.start_location) as AutocompleteSupportFragment
         // Construct and set autocomplete fragment settings
-        autoCompleteFragment.setTypeFilter(TypeFilter.ESTABLISHMENT)
-        autoCompleteFragment.setLocationBias(
+        startLocationFragment.setTypeFilter(TypeFilter.ESTABLISHMENT)
+        startLocationFragment.setLocationBias(
             RectangularBounds.newInstance(
                 LatLng(28.6000, -81.3392), LatLng(28.6000, -81.3392)))
-        autoCompleteFragment.setCountries("US")
-        autoCompleteFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME))
-        autoCompleteFragment.setHint("Location")
+        startLocationFragment.setCountries("US")
+        startLocationFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME))
+        startLocationFragment.setHint("Start Location")
         // Autocomplete fragment listener
-        autoCompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+        startLocationFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             // Get info about selected place
             override fun onPlaceSelected(place: Place) {
                 //Log.i(TAG, "Place: ${place.name}, ${place.id}")
-                location = place.name
+                startLocationName = place.name
+                startLocationID = place.id
+            }
+            // Handle error
+            override fun onError(status: Status) {
+                //Log.i(TAG, "An error occurred: $status")
+            }
+        })
+
+        // AutoComplete Fragment
+        val endLocationFragment = supportFragmentManager.findFragmentById(R.id.end_location) as AutocompleteSupportFragment
+        // Construct and set autocomplete fragment settings
+        endLocationFragment.setTypeFilter(TypeFilter.ESTABLISHMENT)
+        endLocationFragment.setLocationBias(
+            RectangularBounds.newInstance(
+                LatLng(28.6000, -81.3392), LatLng(28.6000, -81.3392)))
+        endLocationFragment.setCountries("US")
+        endLocationFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME))
+        endLocationFragment.setHint("Event Location")
+        // Autocomplete fragment listener
+        endLocationFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            // Get info about selected place
+            override fun onPlaceSelected(place: Place) {
+                //Log.i(TAG, "Place: ${place.name}, ${place.id}")
+                endLocationName = place.name
+                endLocationID = place.id
             }
             // Handle error
             override fun onError(status: Status) {
@@ -193,12 +207,13 @@ class CreateEventActivity : AppCompatActivity() {
                 items[3] -> 1800000
                 items[4] -> 3600000
                 items[5] -> 86400000
+                items[6] -> calculateTravelTime(startLocationID, endLocationID)
                 else -> 0
             }
             timeInMillis -= timeOffset
 
             // Create the event object, which will take the place of the hash map - Gabriel
-            val eventObj = Event(eventTitle, timeText.text.toString(), location, dateText.text.toString(), timeInMillis, databasePathID, auth.uid.toString(), databasePath.id.toString())
+            val eventObj = Event(eventTitle, timeText.text.toString(), startLocationName, endLocationName, dateText.text.toString(), timeInMillis, databasePathID, auth.uid.toString(), databasePath.id.toString())
 
             // Set the data in the relevant database path using the event object - Gabriel
             databasePath.set(eventObj)
@@ -239,6 +254,20 @@ class CreateEventActivity : AppCompatActivity() {
         simpleDateFormat = SimpleDateFormat("hh:mm a")
         format = simpleDateFormat.format(Date())
         timeText.text = format
+    }
+
+    private fun calculateTravelTime(startLocationID: String, endLocationID: String): Long {
+        val url = "https://maps.googleapis.com/maps/api/distancematrix/json" +
+                "?origins=place_id:" + startLocationID +
+                "&destinations=place_id:" + endLocationID +
+                "&units=imperial" +
+                "&key=" + MAPS_API_KEY
+        val task = RunTask(url)
+        val service = Executors.newSingleThreadExecutor()
+        service.execute(task)
+        TimeUnit.SECONDS.sleep(1)
+        val result = task.result
+        return result.toLong() * 1000
     }
 }
 

@@ -62,7 +62,7 @@ class RecyclerAdapter:RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
         holder.eventTitle.text = localMonth.mDays[mRecyclerDate-1][position].mTitle
         holder.eventNumber.text = "${newPos}.)"
         holder.eventTime.text = "Start: ${localMonth.mDays[mRecyclerDate-1][position].mTime}"
-        holder.eventLocation.text = localMonth.mDays[mRecyclerDate-1][position].mLocation
+        holder.eventLocation.text = localMonth.mDays[mRecyclerDate-1][position].mStartLocation
 
 
     }

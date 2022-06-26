@@ -244,7 +244,10 @@ class CreateEventActivity : AppCompatActivity() {
                     if(task.isSuccessful){
                         Toast.makeText(this, "Database path creation successful!", Toast.LENGTH_SHORT).show()
                         // Schedule Notification
-                        Notifications.create().scheduleNotification(applicationContext, eventObj)
+                        if (timeInMillis > Calendar.getInstance().timeInMillis) {
+                            Notifications.create()
+                                .scheduleNotification(applicationContext, eventObj)
+                        }
                         // Set data to "All Events" document for later use for notifications
                         db.collection("Users").document(auth.uid.toString()).collection("All Events").document().set(eventObj)
                         //startActivity(Intent(this, MainActivity::class.java))

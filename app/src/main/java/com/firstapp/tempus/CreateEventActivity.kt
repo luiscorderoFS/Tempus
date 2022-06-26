@@ -243,7 +243,7 @@ class CreateEventActivity : AppCompatActivity() {
                     // Upon a successful document path creation, display a Toast message and change the activity - Gabriel
                     if(task.isSuccessful){
                         Toast.makeText(this, "Database path creation successful!", Toast.LENGTH_SHORT).show()
-                        // If time is set to the future, schedule notification and write event to "All Events" document
+                        // If time is set to the future, schedule notification and write event to "All Events" collection
                         if (timeInMillis > Calendar.getInstance().timeInMillis) {
                             Notifications.create().scheduleNotification(applicationContext, eventObj)
                             db.collection("Users").document(auth.uid.toString()).collection("All Events").document().set(eventObj)

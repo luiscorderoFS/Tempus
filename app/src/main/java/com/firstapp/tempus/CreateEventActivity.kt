@@ -70,6 +70,7 @@ class CreateEventActivity : AppCompatActivity() {
         var hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         var minute = Calendar.getInstance().get(Calendar.MINUTE)
         var timeInMillis = date + (hour * 3600000) + (minute * 60000) + 14400000
+        var timeOffset: Long = 0
         // set date and time views to current time
         setText()
 
@@ -184,6 +185,17 @@ class CreateEventActivity : AppCompatActivity() {
             // After converting the document ID to a numeric ID, set the databasePathID variable to the first 9 digits of the same value.
             // Note: this is for the purpose of fitting this numeric ID within a variable of type integer - Gabriel
             databasePathID = databasePathID.substring(0,9)
+
+            // set timeOffset based off alert options selection
+            timeOffset = when (autoComplete.text.toString()) {
+                items[1] -> 300000
+                items[2] -> 900000
+                items[3] -> 1800000
+                items[4] -> 3600000
+                items[5] -> 86400000
+                else -> 0
+            }
+            timeInMillis -= timeOffset
 
             // Create the event object, which will take the place of the hash map - Gabriel
             val eventObj = Event(eventTitle, timeText.text.toString(), location, dateText.text.toString(), timeInMillis, databasePathID, auth.uid.toString(), databasePath.id.toString())

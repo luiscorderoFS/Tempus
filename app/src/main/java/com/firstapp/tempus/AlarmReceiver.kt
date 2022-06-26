@@ -40,14 +40,14 @@ class AlarmReceiver : BroadcastReceiver() {
             val title = intent.getStringExtra(NOTIFICATION_TITLE)
             val notificationID = intent.getIntExtra(NOTIFICATION_ID, 0)
             val location = intent.getStringExtra(NOTIFICATION_LOCATION)
-            val time = intent.getLongExtra(NOTIFICATION_TIME, 0)
+            val date = intent.getStringExtra(NOTIFICATION_DATE)
+            val time = intent.getStringExtra(NOTIFICATION_TIME)
             var format = ""
-            val simpleDateFormat = SimpleDateFormat("h:mm a")
             if (location == "") {
-                format = "At ${simpleDateFormat.format(time)}"
+                format = "At $time on $date"
             }
             else {
-                format = "At $location at ${simpleDateFormat.format(time)}"
+                format = "At $location at $time on $date"
             }
             // create explicit intent of main activity
             val mainIntent = Intent(context, MainActivity::class.java)

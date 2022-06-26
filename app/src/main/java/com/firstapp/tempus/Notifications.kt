@@ -16,6 +16,7 @@ val CHANNEL_ID = "channelID"
 val CHANNEL_NAME = "Event notifications"
 val NOTIFICATION_TITLE = "NotificationTitle"
 val NOTIFICATION_LOCATION = "NotificationLocation"
+val NOTIFICATION_DATE = "NotificationDate"
 val NOTIFICATION_TIME = "NotificationTime"
 val NOTIFICATION_ID = ""
 
@@ -38,7 +39,8 @@ class Notifications {
         intent.putExtra(NOTIFICATION_TITLE, eventObj.mTitle)
         intent.putExtra(NOTIFICATION_ID, eventObj.mNumID.toInt())
         intent.putExtra(NOTIFICATION_LOCATION, eventObj.mLocation)
-        intent.putExtra(NOTIFICATION_TIME, eventObj.mTimeInMillis)
+        intent.putExtra(NOTIFICATION_DATE, eventObj.mDate)
+        intent.putExtra(NOTIFICATION_TIME, eventObj.mTime)
 
         val pendingIntent = PendingIntent.getBroadcast(
             context,
